@@ -1,0 +1,17 @@
+## Title: SaveHardcoreDeaths
+## Version: 1.0
+## Author: nik
+## Interface: 30300
+## SavedVariables: SavedDeaths
+## SavedVariables: MySavedVariable
+## SavedVariables: DeathListSaved
+## SavedVariables: UserSettings
+#Death.lua
+#DeathLog.lua
+
+DeathMapUtils.lua
+DeathListUtils.lua
+Utils.lua
+Death.lua
+MainFrame.lua
+SaveHardcoreDeaths.lua
