@@ -13,5 +13,6 @@ DeathMapUtils.lua
 DeathListUtils.lua
 Utils.lua
 Death.lua
+UserMessages.lua
 MainFrame.lua
 SaveHardcoreDeaths.lua

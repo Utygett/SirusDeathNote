@@ -3,23 +3,6 @@ UiMainFramne.__index = UiMainFramne
 
 UserSettings = UserSettings or {}
 
-
-
-local function GetOnlineFriends()
-    local onlineFriends = {}
-
-    -- Получаем общее количество друзей
-    local numFriends = GetNumFriends()
-    -- Перебираем список друзей
-    for i = 1, numFriends do
-        local name, _, _, _, connected = GetFriendInfo(i)
-        if connected then
-            table.insert(onlineFriends, name)
-        end
-    end
-    return onlineFriends
-end
-
 -- Инициализация выпадающего меню
 local function InitializeDropdown(self, level)
     local info = UIDropDownMenu_CreateInfo()
@@ -238,27 +221,8 @@ function UiMainFramne:new(parsedDeathList)
     StartSyncButton:SetText("Начать синхронизацию")
     StartSyncButton:SetPoint("BOTTOM", SettingsFrame, "BOTTOM", 0, 10)
     StartSyncButton:SetScript("OnClick", function()
-        print("Начинаем синхронизацию...") -- Пустой обработчик
         
-        -- Пример использования функции
-        local onlineFriends = GetOnlineFriends()
-        for _, name in ipairs(onlineFriends) do
-            print("Онлайн друг: " .. name)
-            local deathInfoMess =  UnitName("player") .. "@GET_COUNT_DEATH_RECORDS_FROM_DATE@".. GetLastRecordTime(DeathListSaved)
-            SendMessageToPlayerOnSameServer("MyAddon", deathInfoMess, "WHISPER", name)
-        end
     end)
-
-
-
-
-
-
-
-
-
-
-
     return obj
 end
 

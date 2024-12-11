@@ -45,3 +45,17 @@ function SendMessageToPlayerOnSameServer(prefix, message, channel, targetPlayer)
         SendAddonMessage(prefix, message, channel)
     end
 end
+-- Получить список друзей онлайн
+function GetOnlineFriends()
+    local onlineFriends = {}
+    -- Получаем общее количество друзей
+    local numFriends = GetNumFriends() -- WOW API
+    -- Перебираем список друзей
+    for i = 1, numFriends do
+        local name, _, _, _, connected = GetFriendInfo(i) -- WOW API
+        if connected then
+            table.insert(onlineFriends, name)
+        end
+    end
+    return onlineFriends
+end

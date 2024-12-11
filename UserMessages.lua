@@ -9,6 +9,19 @@ function UserMessages:new()
     return obj
 end
 
+function UserMessages:SendGetCountDeathRecordFromDate()
+    print("Начинаем синхронизацию...") -- Пустой обработчик
+    -- Пример использования функции
+    local onlineFriends = GetOnlineFriends()
+    for _, name in ipairs(onlineFriends) do
+        local lastRecordTime = GetLastRecordTime(DeathListSaved);
+        print("Справшиваем у " .. name .. " количество записей от " .. lastRecordTime);
+        local returnCmd = "GET_COUNT_DEATH_RECORDS_FROM_DATE";
+        local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. lastRecordTime;
+        SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", name);
+    end    
+end
+
 function UserMessages:HandleGetCountDeathRecordFromDate(sender, messagedata)
     local countRecord = GetRecordCountSince(DeathListSaved, messagedata)
     local returnCmd = "GET_COUNT_DEATH_RECORDS_FROM_DATE_RESULT";
