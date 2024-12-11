@@ -6,7 +6,7 @@ local fractionName = {
     "Альянс",
     "Орда"
 }
-
+ 
 local function getFractionNameFromId (fractionId)
     if fractionId == nil then
         return ""
