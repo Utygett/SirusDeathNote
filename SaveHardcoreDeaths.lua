@@ -45,19 +45,17 @@ local function LoadSavedEvents()
 
 end
 
--- -- Сохранение данных
--- local function SaveEvents()
---     MySavedVariable = {}
---     for _, event in ipairs(deathList) do
---         table.insert(MySavedVariable, event:ToTable())
---     end
---     print("События сохранены!")
--- end
-
-local function SerializeRecord(record)
-    -- Соединяем DeathMessage и DeathTime в одну строку
-    return record.DeathMessage .. "#" .. record.DeathTime
+-- Сохранение данных
+local function SaveEvents()
+    MySavedVariable = {}
+    for _, event in ipairs(deathList) do
+        local deathSerealize = SerializeRecord(event)
+        -- print("-------------------Serealized death:", deathSerealize)
+        AddToMap(DeathListSaved, deathSerealize);
+    end
+    print("События сохранены!")
 end
+
 
 
 
@@ -86,6 +84,10 @@ FrameUi = UiMainFramne:new(parsedDeathList)
 FrameUi.frame:RegisterEvent("PLAYER_LOGIN")
 FrameUi.frame:RegisterEvent("PLAYER_LOGOUT")
 FrameUi.frame:RegisterEvent("CHAT_MSG_ADDON")
+
+--Класс обмена сообщениями
+UserMSG = UserMessages:new();
+
 FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     if event == "PLAYER_LOGIN" then
         print("Аддон загружен!")
@@ -96,7 +98,7 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         -- SendMessageToPlayerOnSameServer("MyAddon", "Hello!", "WHISPER", "Ещёпятьминут")
         -- SendMessageToPlayerOnSameServer("MyAddon", "GET_ALL_DEATH_RECORDS@Нумампожал", "WHISPER", "Ещёпятьминут")
     elseif event == "PLAYER_LOGOUT" then
-        -- SaveEvents()
+        SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
         print("--------CHAT_MSG_ADDON: ", message)
         local event = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
@@ -105,9 +107,9 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         table.insert(parsedDeathList, parsedDeath)
         print("Событие добавлено: " .. event:GetDescription())
         local deathSerealize = SerializeRecord(event)
-        print("-------------------Serealized death:", deathSerealize)
-        AddToMap(DeathListSaved, deathSerealize);
-    elseif event == "CHAT_MSG_ADDON"  and prefix == "MyAddon" then
+        -- print("-------------------Serealized death:", deathSerealize)
+        -- AddToMap(DeathListSaved, deathSerealize);
+    elseif event == "CHAT_MSG_ADDON"  and prefix == "MyAddon" then      -- ///вынести в отдельную функцию
         print("Аддон ивент: ", event)
         print("Аддон префикс: ", prefix)
         print("Аддон сообщение: ", message)
@@ -115,34 +117,16 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Команда:", command) -- Выведет: GET_ALL_DEATH_RECORDS
         print("Отправитель:", sender) -- Выведет: Ещёпятьминут
         print("Данные:", messagedata)
+
         if command == "GET_COUNT_DEATH_RECORDS_FROM_DATE" then
-            local countRecord = GetRecordCountSince(DeathListSaved, messagedata)
-            local messageToReturn = UnitName("player") .. "@GET_COUNT_DEATH_RECORDS_FROM_DATE_RESULT@" .. countRecord
-            SendMessageToPlayerOnSameServer("MyAddon", messageToReturn, "WHISPER", sender)
+            UserMSG.HandleGetCountDeathRecordFromDate(UserMSG, sender, messagedata);
         elseif command == "GET_COUNT_DEATH_RECORDS_FROM_DATE_RESULT" then
-            if tonumber(messagedata) > 0 then
-                local messageToReturn = UnitName("player") .. "@GET_DEATH_RECORDS_FROM_DATE_RESULT@" .. GetLastRecordTime(DeathListSaved)
-                SendMessageToPlayerOnSameServer("MyAddon", messageToReturn, "WHISPER", sender)
-            end
-            -- AddRecordToMyList(messagedata)
-        elseif command == "SEND_DEATH_RECORDS" then
-            print("-------------------messagedata:", messagedata)
-            AddToMap(DeathListSaved, messagedata);
-            -- AddRecordToMyList(messagedata)
+            UserMSG.HandleGetCountDeathRecordFromDateResult(UserMSG, sender, messagedata);
+        elseif command == "SEND_DEATH_RECORD" then
+            UserMSG.HandleSendDeathRecord(UserMSG, sender, messagedata, deathList, parsedDeathList)
         elseif command == "GET_DEATH_RECORDS_FROM_DATE_RESULT" then
-            local records = GetRecordsSince(DeathListSaved, messagedata)
-            for _, record in ipairs(records) do
-                local messageToReturn = UnitName("player") .. "@SEND_DEATH_RECORDS@" .. record
-                SendMessageToPlayerOnSameServer("MyAddon", messageToReturn, "WHISPER", sender)
-            end
-            AddToMap(DeathListSaved, messagedata);
-            table.insert(parsedDeathList, DeserializeRecord(messagedata))
-            -- AddRecordToMyList(messagedata)
+            UserMSG.HandleGetDeathRecordsFromDateResult(UserMSG, sender, messagedata, deathList)
         end
-    elseif event == "CHAT_MSG_ADDON" then
-        -- print("Аддон ивент: ", event)
-        -- print("Аддон префикс: ", prefix)
-        -- print("Аддон сообщение: ", message)
     end
 end)
 -- UiMainFramne:UpdateTable()

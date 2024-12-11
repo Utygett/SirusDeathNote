@@ -1,5 +1,11 @@
 --Глобальные функции, утилиты
 
+
+function SerializeRecord(record)
+    -- Соединяем DeathMessage и DeathTime в одну строку
+    return record.DeathMessage .. "#" .. record.DeathTime
+end
+
 function DeserializeRecord(serializedString)
     -- Разделяем строку на DeathMessage и DeathTime
     local deathMessage, deathTime = strsplit("#", serializedString)
