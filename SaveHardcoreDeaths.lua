@@ -106,7 +106,7 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         local parsedDeath = Death:ParseHardcoreDeath(event)
         table.insert(parsedDeathList, parsedDeath)
         print("Событие добавлено: " .. event:GetDescription())
-        local deathSerealize = SerializeRecord(event)
+        -- local deathSerealize = SerializeRecord(event)
         -- print("-------------------Serealized death:", deathSerealize)
         -- AddToMap(DeathListSaved, deathSerealize);
     elseif event == "CHAT_MSG_ADDON"  and prefix == "MyAddon" then      -- ///вынести в отдельную функцию
