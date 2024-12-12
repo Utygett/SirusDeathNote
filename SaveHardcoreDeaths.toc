@@ -6,6 +6,7 @@
 ## SavedVariables: MySavedVariable
 ## SavedVariables: DeathListSaved
 ## SavedVariables: UserSettings
+## SavedVariables: Setting
 #Death.lua
 #DeathLog.lua
 

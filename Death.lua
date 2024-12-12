@@ -1,23 +1,22 @@
 print("ФАйл Death загружен")
 UserSettings = UserSettings or {}
-print("Check UserSettings.SyncWithGuild: ", UserSettings["SyncWithGuild"])
-print("Check UserSettings.SyncWithFriends: ", UserSettings["SyncWithFriends"])
-local function timerEndFunc()
-    print("таймер окончился, время: ", date("%Y-%m-%d %H:%M:%S"))
-end
-print("Включаем таймер, время: ", date("%Y-%m-%d %H:%M:%S"))
+
+-- local function timerEndFunc()
+--     print("таймер окончился, время: ", date("%Y-%m-%d %H:%M:%S"))
+-- end
+-- print("Включаем таймер, время: ", date("%Y-%m-%d %H:%M:%S"))
 
 
-local frame = CreateFrame("Frame")
-frame:SetScript("OnUpdate", function(self, elapsed)
-    self.elapsed = (self.elapsed or 0) + elapsed
-    print("UpdateCalled: ",elapsed)
-    if self.elapsed >= 5 then
-        timerEndFunc()
-        self:Hide()  -- Убираем фрейм после выполнения задачи
-    end
-end)
-frame:Show()
+-- local frame = CreateFrame("Frame")
+-- frame:SetScript("OnUpdate", function(self, elapsed)
+--     self.elapsed = (self.elapsed or 0) + elapsed
+--     print("UpdateCalled: ",elapsed)
+--     if self.elapsed >= 5 then
+--         timerEndFunc()
+--         self:Hide()  -- Убираем фрейм после выполнения задачи
+--     end
+-- end)
+-- frame:Show()
 
 
 

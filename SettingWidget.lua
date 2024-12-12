@@ -14,9 +14,8 @@ function SettingsWidget:new()
     obj.syncWithFriendsCheckbox.text = obj.syncWithFriendsCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     obj.syncWithFriendsCheckbox.text:SetPoint("LEFT", obj.syncWithFriendsCheckbox, "RIGHT", 5, 0)
     obj.syncWithFriendsCheckbox.text:SetText("Синхронизация записей с друзьями")
-    obj.syncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends == 1)
     obj.syncWithFriendsCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithFriends = self:GetChecked()
+        UserSettings.SyncWithFriends = self:GetChecked() == true;
         print("Синхронизация с друзьями: " .. tostring(UserSettings.SyncWithFriends))
     end)
 
@@ -26,16 +25,9 @@ function SettingsWidget:new()
     obj.syncWithGuildCheckbox.text = obj.syncWithGuildCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     obj.syncWithGuildCheckbox.text:SetPoint("LEFT", obj.syncWithGuildCheckbox, "RIGHT", 5, 0)
     obj.syncWithGuildCheckbox.text:SetText("Синхронизация записей с согильдейцами")
-    print("инициализация чек бкосов UserSettings.SyncWithGuild: ", UserSettings.SyncWithGuild)
-    print("инициализация чек бкосов UserSettings.SyncWithFriends: ", UserSettings.SyncWithFriends)
-    if UserSettings.SyncWithGuild == 1 then
-        obj.syncWithGuildCheckbox:SetChecked(true)
-    else
-        obj.syncWithGuildCheckbox:SetChecked(false)
-    end
     
     obj.syncWithGuildCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithGuild = self:GetChecked()
+        UserSettings.SyncWithGuild = self:GetChecked() == true;
         print("Синхронизация с согильдейцами: " .. tostring(UserSettings.SyncWithGuild))
     end)
 
@@ -44,13 +36,21 @@ function SettingsWidget:new()
     obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker(obj.frame, "Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
         -- Сохраняем дату и время начало синхронизации в настройки
         UserSettings.dateTimeForSynch = selectedDateTime;
+        obj.UpdateSyncDateLabel(obj, selectedDateTime)
         print("Выбранная дата и время: " .. selectedDateTime)
     end)
 
+
+    -- Создаем FontString для отображения даты
+    obj.syncDateLabel = obj.frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    obj.syncDateLabel:SetPoint("TOPLEFT", 15, -126) -- Центрируем текст
+    obj.syncDateLabel:SetText("2024-12-10 00:56:03") -- Устанавливаем текст
+
+
     -- Кнопка для открытия виджета
     obj.openPickerButton = CreateFrame("Button", nil, obj.frame, "UIPanelButtonTemplate")
-    obj.openPickerButton:SetSize(100, 25)
-    obj.openPickerButton:SetPoint("TOPLEFT", 100, -120)
+    obj.openPickerButton:SetSize(110, 25)
+    obj.openPickerButton:SetPoint("TOPLEFT", 165, -120)
     obj.openPickerButton:SetText("Установить дату")
     obj.openPickerButton:SetScript("OnClick", function()
         obj.picker:Show()
@@ -65,8 +65,16 @@ function SettingsWidget:new()
     return obj
 end
 
+-- Функция для обновления текста с текущей датой синхронизации
+function SettingsWidget:UpdateSyncDateLabel(dateString)
+    self.syncDateLabel:SetText(dateString)
+end
+
 -- Обновляем дату и время в лейбле и виджете выбора даты и времени
 function SettingsWidget:UpdateSettingDatePickerText(dateTime)
+    print("Обновляем время последней записи:" , dateTime)
+    UserSettings.dateTimeForSynch = dateTime;
+    self.UpdateSyncDateLabel(self, dateTime)
     --TODO добавить лейбл перед кнопкой (показывает текущее выбранную дату и время синхронизации)
     self.dateInput:SetText(dateTime:match("^(%d+-%d+-%d+)")) -- Устанавливаем дату
     self.timeInput:SetText(dateTime:match("(%d+:%d+:%d+)$")) -- Устанавливаем время
@@ -74,4 +82,11 @@ end
 
 function SettingsWidget:setHandlerForSynchButton(sycnhFunction)
     self.startSyncButton:SetScript("OnClick", sycnhFunction)
+end
+
+function SettingsWidget:Init()
+    -- Ставим дату последней записи для обновления при инициализации
+    self.UpdateSettingDatePickerText(self, GetLastRecordTime())
+    self.syncWithGuildCheckbox:SetChecked(UserSettings.SyncWithGuild)
+    self.syncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends)
 end

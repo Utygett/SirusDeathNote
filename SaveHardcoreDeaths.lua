@@ -90,8 +90,13 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     if event == "PLAYER_LOGIN" then
         print("Аддон загружен!")
         LoadSavedEvents()
-        FrameUi.settingsWidget.UpdateSettingDatePickerText(FrameUi.settingsWidget, GetLastRecordTime())
+        FrameUi.InitSettings(FrameUi)
+        
         FrameUi.frame:Show();
+        print("Check UserSettings.dateTimeForSynch: ", UserSettings.dateTimeForSynch)
+        
+        print("Check UserSettings.SyncWithGuild: ", UserSettings.SyncWithGuild)
+        print("Check UserSettings.SyncWithFriends: ", UserSettings.SyncWithFriends)
         -- Регистрируем префикс
         -- RegisterPrefix("MyAddon")
         -- Пример использования

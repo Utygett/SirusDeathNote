@@ -236,3 +236,9 @@ function UiMainFramne:FilterData(searchText)
     end
     self.UpdateTable(self)
 end
+
+-- Так как настройки(БД) прогружаются только после логина, в конструкторе мы не можем их использовать
+function UiMainFramne:InitSettings()
+    --Инициализация диалога настроек
+    FrameUi.settingsWidget.Init(FrameUi.settingsWidget)
+end
