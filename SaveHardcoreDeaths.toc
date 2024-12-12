@@ -10,9 +10,9 @@
 #DeathLog.lua
 
 Death.lua
+WidgetUtils.lua
 DateTimePickerFrame.lua
 SettingWidget.lua
-DeathMapUtils.lua
 DeathListUtils.lua
 Utils.lua
 UserMessages.lua

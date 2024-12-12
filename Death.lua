@@ -1,3 +1,4 @@
+print("ФАйл Death загружен")
 -- Определение класса Death
 Death = {}
 Death.__index = Death

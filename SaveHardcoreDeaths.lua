@@ -91,6 +91,7 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Аддон загружен!")
         LoadSavedEvents()
         FrameUi.settingsWidget.UpdateSettingDatePickerText(FrameUi.settingsWidget, GetLastRecordTime())
+        FrameUi.frame:Show();
         -- Регистрируем префикс
         -- RegisterPrefix("MyAddon")
         -- Пример использования

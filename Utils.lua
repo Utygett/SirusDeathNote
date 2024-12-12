@@ -1,5 +1,5 @@
 --Глобальные функции, утилиты
-
+print("ФАйл Utils загружен")
 
 function SerializeRecord(record)
     -- Соединяем DeathMessage и DeathTime в одну строку
