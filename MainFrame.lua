@@ -3,68 +3,27 @@ UiMainFramne.__index = UiMainFramne
 
 UserSettings = UserSettings or {}
 
+
+local function addDropdownMenu(self, text, filerId, filterName)
+    local info = UIDropDownMenu_CreateInfo()
+    info.text = text
+    info.func = function()
+        self.activeFilter = filerId
+        UIDropDownMenu_SetText(self.dropdown, filterName)
+    end
+    UIDropDownMenu_AddButton(info, 1)
+end
+
 -- Инициализация выпадающего меню
 local function InitializeDropdown(self, level)
-    local info = UIDropDownMenu_CreateInfo()
-    -- Убедитесь, что `level` является числом
-    if type(level) ~= "number" then
-        level = 1 -- Установите уровень по умолчанию, если значение некорректное
-    end
-    info.text = "Фильтр по имени"
-    info.func = function()
-        self.activeFilter = "name"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Имя")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по классу"
-    info.func = function()
-        self.activeFilter = "class"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Класс")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по фракции"
-    info.func = function()
-        self.activeFilter = "fraction"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Фракция")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по расе"
-    info.func = function()
-        self.activeFilter = "race"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Раса")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по уровню"
-    info.func = function()
-        self.activeFilter = "level"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Уровень")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по локации"
-    info.func = function()
-        self.activeFilter = "zone"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Локация")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по убийце"
-    info.func = function()
-        self.activeFilter = "killerName"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Убийца")
-    end
-    UIDropDownMenu_AddButton(info, level)
-
-    info.text = "Фильтр по времени"
-    info.func = function()
-        self.activeFilter = "deathTime"
-        UIDropDownMenu_SetText(self.dropdown, "Фильтр: Время")
-    end
-    UIDropDownMenu_AddButton(info, level)
+    addDropdownMenu(self, "Фильтр по имени", "name", "Фильтр: Имя");
+    addDropdownMenu(self, "Фильтр по классу", "class", "Фильтр: Класс");
+    addDropdownMenu(self, "Фильтр по фракции", "fraction", "Фильтр: Фракция");
+    addDropdownMenu(self, "Фильтр по расе", "race", "Фильтр: Раса");
+    addDropdownMenu(self, "Фильтр по уровню", "level", "Фильтр: Уровень");
+    addDropdownMenu(self, "Фильтр по локации", "zone", "Фильтр: Локация");
+    addDropdownMenu(self, "Фильтр по убийце", "killerName", "Фильтр: Убийца");
+    addDropdownMenu(self, "Фильтр по времени", "deathTime", "Фильтр: Время");
 end
 
 local function creteMainFrameUi()
