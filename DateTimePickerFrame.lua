@@ -3,33 +3,7 @@
 -- Функция для создания виджета выбора даты и времени
 function CreateDateTimePicker(parentFrame, title, initialDateTime, onConfirm)
     -- local frame = CreateFrame("Frame", nil, parentFrame) -- Убираем BackdropTemplate
-    local frame = CreateFrame("Frame", "DateTimePicker", nil, "BasicFrameTemplateWithInset")
-    frame:SetSize(300, 200) -- Размер окна
-    frame:SetPoint("CENTER") -- Центр экрана
-    frame:Hide() -- Скрываем окно по умолчанию
-    frame:SetMovable(true)
-    frame:EnableMouse(true)
-    frame:SetFrameStrata("DIALOG")
-    frame:RegisterForDrag("LeftButton")
-    frame:SetScript("OnDragStart", frame.StartMoving)
-    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-
-
-
-
-    -- frame:SetSize(300, 200)
-    -- frame:SetPoint("CENTER", parentFrame, "CENTER")
-    -- frame:EnableMouse(true)
-    -- frame:SetMovable(true)
-    -- frame:SetFrameStrata("DIALOG")
-    -- frame:RegisterForDrag("LeftButton")
-    -- frame:SetScript("OnDragStart", frame.StartMoving)
-    -- frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-
-    -- Заголовок
-    local titleLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    titleLabel:SetPoint("TOP", frame, "TOP", 0, -5)
-    titleLabel:SetText(title)
+    local frame = CreteMainFrameUi("DateTimePicker", 300, 200, "DIALOG", title)
 
     -- Поле для ввода даты
     local dateInput = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")

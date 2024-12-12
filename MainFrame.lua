@@ -112,73 +112,22 @@ function UiMainFramne:new(parsedDeathList)
     settingsButton:SetText("Настройки")
     settingsButton:SetPoint("TOPRIGHT", -23, 2) -- Позиция сверху справа
     settingsButton:SetScript("OnClick", function()
-        if not SettingsFrame:IsShown() then
-            SettingsFrame:Show()
+        if not obj.settingsWidget.frame:IsShown() then
+            obj.settingsWidget.frame:Show()
         else
-            SettingsFrame:Hide()
+            obj.settingsWidget.frame:Hide()
         end
     end)
 
     -- Создание окна настроек
-    local SettingsFrame = CreteMainFrameUi("SettingsFrame", 300, 200, "HIGH", "Настройки");
-
-
-    -- Чекбокс 1: Синхронизация записей с друзьями
-    local SyncWithFriendsCheckbox = CreateFrame("CheckButton", "SyncWithFriendsCheckbox", SettingsFrame, "UICheckButtonTemplate")
-    SyncWithFriendsCheckbox:SetPoint("TOPLEFT", 20, -40)
-    SyncWithFriendsCheckbox.text = SyncWithFriendsCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    SyncWithFriendsCheckbox.text:SetPoint("LEFT", SyncWithFriendsCheckbox, "RIGHT", 5, 0)
-    SyncWithFriendsCheckbox.text:SetText("Синхронизация записей с друзьями")
-    SyncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends)
-    SyncWithFriendsCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithFriends = self:GetChecked()
-        print("Синхронизация с друзьями: " .. tostring(UserSettings.SyncWithFriends))
-    end)
-
-    -- Чекбокс 2: Синхронизация записей с согильдейцами
-    local SyncWithGuildCheckbox = CreateFrame("CheckButton", "SyncWithGuildCheckbox", SettingsFrame, "UICheckButtonTemplate")
-    SyncWithGuildCheckbox:SetPoint("TOPLEFT", 20, -80)
-    SyncWithGuildCheckbox.text = SyncWithGuildCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    SyncWithGuildCheckbox.text:SetPoint("LEFT", SyncWithGuildCheckbox, "RIGHT", 5, 0)
-    SyncWithGuildCheckbox.text:SetText("Синхронизация записей с согильдейцами")
-    SyncWithGuildCheckbox:SetChecked(UserSettings.SyncWithGuild)
-    SyncWithGuildCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithGuild = self:GetChecked()
-        print("Синхронизация с согильдейцами: " .. tostring(UserSettings.SyncWithGuild))
-    end)
-
-    obj.dateInput = nil
-    obj.timeInput = nil
-    obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker(SettingsFrame, "Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
-        --  selectedDateTime
-        print("Выбранная дата и время: " .. selectedDateTime)
-    end)
-    obj.picker:Hide()
-
-    -- Кнопка для открытия виджета
-    local openPickerButton = CreateFrame("Button", nil, SettingsFrame, "UIPanelButtonTemplate")
-    openPickerButton:SetSize(100, 25)
-    openPickerButton:SetPoint("TOPLEFT", 100, -120)
-    openPickerButton:SetText("Установить дату")
-    openPickerButton:SetScript("OnClick", function()
-        obj.picker:Show()
-    end)
-
-    -- Кнопка "Начать синхронизацию"
-    local StartSyncButton = CreateFrame("Button", "StartSyncButton", SettingsFrame, "UIPanelButtonTemplate")
-    StartSyncButton:SetSize(140, 25)
-    StartSyncButton:SetText("Начать синхронизацию")
-    StartSyncButton:SetPoint("BOTTOM", SettingsFrame, "BOTTOM", 0, 10)
-    StartSyncButton:SetScript("OnClick", function()
+    obj.settingsWidget = SettingsWidget:new();
+    -- Устанавливаем обработчик для кнопки синхронизации в диалоге настроек
+    obj.settingsWidget.setHandlerForSynchButton(obj.settingsWidget, function ()
         obj.userMSG.SendGetCountDeathRecordFromDate(obj.userMSG)
     end)
     return obj
 end
 
-function UiMainFramne:UpdateSettingDatePickerText(dateTime) 
-    self.dateInput:SetText(dateTime:match("^(%d+-%d+-%d+)")) -- Устанавливаем начальную дату
-    self.timeInput:SetText(dateTime:match("(%d+:%d+:%d+)$")) -- Устанавливаем начальное время
-end
 
 -- Функция для обработки сортировки
 function UiMainFramne:SortBy(column)
