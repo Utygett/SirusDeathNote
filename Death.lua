@@ -63,7 +63,7 @@ function Death:new(DeathMessage, DeathTime)
     local obj = setmetatable({}, Death)
     obj.DeathMessage = DeathMessage or "Unknown Death"
     obj.DeathTime = DeathTime or date("%Y-%m-%d %H:%M:%S")
-    return obj
+    return SerializeRecord(obj)
 end
 
 -- Метод для получения описания события
@@ -84,8 +84,9 @@ function Death:FromTable(data)
     return Death:new(data.DeathMessage, data.DeathTime)
 end
 
-function Death:ParseHardcoreDeath(death)
+function Death:ParseHardcoreDeath(record)
     -- print("-------------death:", death.DeathMessage)
+    local death = DeserializeRecord(record)
     local deathMessage = death.DeathMessage;
     local deathTime = death.DeathTime;
     -- Парсим строку

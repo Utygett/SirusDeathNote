@@ -77,6 +77,7 @@ frame:EnableMouse(true)
 frame:RegisterForDrag("LeftButton")
 frame:SetScript("OnDragStart", frame.StartMoving)
 frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+frame:SetFrameStrata("MEDIUM")
 
 frame.title = frame:CreateFontString(nil, "OVERLAY")
 frame.title:SetFontObject("GameFontHighlightLarge")
@@ -91,6 +92,9 @@ function UiMainFramne:new(parsedDeathList)
     obj.frame = creteMainFrameUi()
     obj.data = parsedDeathList
     obj.parsedDeathList = parsedDeathList
+
+    obj.userMSG = UserMessages:new();--Класс обмена сообщениями
+    
     -- Заголовки таблицы
     -- name, class, fraction, race, level, zone, unknowValue, killerName, killerLevel, deathTime)
     obj.headers =     {"Имя", "Класс", "Фракция","Раса", "lvl", "Локация", "Кто убил", "lvl уб..", "Время смерти"}
@@ -185,7 +189,7 @@ function UiMainFramne:new(parsedDeathList)
     SettingsFrame.title:SetText("Настройки синхронизации")
     SettingsFrame:SetMovable(true)
     SettingsFrame:EnableMouse(true)
-    SettingsFrame:SetFrameStrata("DIALOG")
+    SettingsFrame:SetFrameStrata("HIGH")
     SettingsFrame:RegisterForDrag("LeftButton")
     SettingsFrame:SetScript("OnDragStart", SettingsFrame.StartMoving)
     SettingsFrame:SetScript("OnDragStop", SettingsFrame.StopMovingOrSizing)
@@ -215,15 +219,37 @@ function UiMainFramne:new(parsedDeathList)
         print("Синхронизация с согильдейцами: " .. tostring(UserSettings.SyncWithGuild))
     end)
 
+    obj.dateInput = nil
+    obj.timeInput = nil
+    obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker(SettingsFrame, "Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
+        --  selectedDateTime
+        print("Выбранная дата и время: " .. selectedDateTime)
+    end)
+    obj.picker:Hide()
+
+    -- Кнопка для открытия виджета
+    local openPickerButton = CreateFrame("Button", nil, SettingsFrame, "UIPanelButtonTemplate")
+    openPickerButton:SetSize(100, 25)
+    openPickerButton:SetPoint("TOPLEFT", 100, -120)
+    openPickerButton:SetText("Установить дату")
+    openPickerButton:SetScript("OnClick", function()
+        obj.picker:Show()
+    end)
+
     -- Кнопка "Начать синхронизацию"
     local StartSyncButton = CreateFrame("Button", "StartSyncButton", SettingsFrame, "UIPanelButtonTemplate")
     StartSyncButton:SetSize(140, 25)
     StartSyncButton:SetText("Начать синхронизацию")
     StartSyncButton:SetPoint("BOTTOM", SettingsFrame, "BOTTOM", 0, 10)
     StartSyncButton:SetScript("OnClick", function()
-        
+        obj.userMSG.SendGetCountDeathRecordFromDate(obj.userMSG)
     end)
     return obj
+end
+
+function UiMainFramne:UpdateSettingDatePickerText(dateTime) 
+    self.dateInput:SetText(dateTime:match("^(%d+-%d+-%d+)")) -- Устанавливаем начальную дату
+    self.timeInput:SetText(dateTime:match("(%d+:%d+:%d+)$")) -- Устанавливаем начальное время
 end
 
 -- Функция для обработки сортировки

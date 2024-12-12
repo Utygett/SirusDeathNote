@@ -22,10 +22,10 @@ local function parseDateTime(dateTimeStr)
 end
 
 -- Функция для подсчета количества записей начиная с определенной даты
-function GetRecordCountSince(deathList, startDateTime)
+function GetRecordCountSince(startDateTime)
     local startTime = parseDateTime(startDateTime)
     local count = 0
-    for key, value in pairs(deathList) do
+    for key, value in pairs(DeathListSaved) do
         local _, dateTimeStr =  strsplit("#", value)
         local recordTime = parseDateTime(dateTimeStr)
         if recordTime >= startTime then
@@ -36,10 +36,10 @@ function GetRecordCountSince(deathList, startDateTime)
 end
 
 -- Функция для получения списка данных начиная с определенной даты
-function GetRecordsSince(deathList, startDateTime)
+function GetRecordsSince(startDateTime)
     local startTime = parseDateTime(startDateTime)
     local records = {}
-    for key, value in pairs(deathList) do
+    for key, value in pairs(DeathListSaved) do
         local _, dateTimeStr =  strsplit("#", value)
         local recordTime = parseDateTime(dateTimeStr)
         if recordTime >= startTime then
@@ -50,14 +50,17 @@ function GetRecordsSince(deathList, startDateTime)
 end
 
 -- Функция для получения времени последней записи
-function GetLastRecordTime(deathList)
+function GetLastRecordTime()
     local lastTime = 0  -- Изначально устанавливаем время на 0 (это означает, что нет записей)
-    
-    for key, value in pairs(deathList) do
+    print("Получаем ремя посл записи")
+    for key, value in pairs(DeathListSaved) do
+        print("In MAssive")
         -- Исправляем регулярное выражение для корректного извлечения даты
         local _, dateTimeStr = strsplit("#", value)  -- Получаем дату и время после символа #
+        print("Получаем ремя посл записи", dateTimeStr)
         if dateTimeStr then
             local recordTime = parseDateTime(dateTimeStr)
+            print("Получаем ремя посл записи", recordTime)
             if recordTime > lastTime then
                 lastTime = recordTime  -- Обновляем время последней записи
             end

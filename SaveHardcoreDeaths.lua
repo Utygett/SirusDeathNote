@@ -30,9 +30,9 @@ local parsedDeathList = {}
 local function LoadSavedEvents()
         for _, record in pairs(DeathListSaved) do
             -- print("--------------------recordIS:", record)
-            local death = Death:FromTable(DeserializeRecord(record))
-            table.insert(deathList, death)
-            local parsedDeath = Death:ParseHardcoreDeath(death)
+            -- local death = Death:FromTable(DeserializeRecord(record))
+            -- table.insert(deathList, death)
+            local parsedDeath = Death:ParseHardcoreDeath(record)
             table.insert(parsedDeathList, parsedDeath)
             
 
@@ -76,6 +76,7 @@ end
 -- deathEventFrame:
 
 -- Инициализация таблицы
+
 FrameUi = UiMainFramne:new(parsedDeathList)
 -- Фрейм для обработки событий
 -- local deathEventFrame = CreateFrame("Frame")
@@ -85,13 +86,11 @@ FrameUi.frame:RegisterEvent("PLAYER_LOGIN")
 FrameUi.frame:RegisterEvent("PLAYER_LOGOUT")
 FrameUi.frame:RegisterEvent("CHAT_MSG_ADDON")
 
---Класс обмена сообщениями
-UserMSG = UserMessages:new();
-
 FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     if event == "PLAYER_LOGIN" then
         print("Аддон загружен!")
         LoadSavedEvents()
+        FrameUi.UpdateSettingDatePickerText(FrameUi, GetLastRecordTime())
         -- Регистрируем префикс
         -- RegisterPrefix("MyAddon")
         -- Пример использования
@@ -102,10 +101,10 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
         print("--------CHAT_MSG_ADDON: ", message)
         local event = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
-        table.insert(deathList, event)
+        AddToMap(DeathListSaved, event)
         local parsedDeath = Death:ParseHardcoreDeath(event)
         table.insert(parsedDeathList, parsedDeath)
-        print("Событие добавлено: " .. event:GetDescription())
+        -- print("Событие добавлено: " .. event:GetDescription())
         -- local deathSerealize = SerializeRecord(event)
         -- print("-------------------Serealized death:", deathSerealize)
         -- AddToMap(DeathListSaved, deathSerealize);
@@ -119,13 +118,13 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Данные:", messagedata)
 
         if command == "GET_COUNT_DEATH_RECORDS_FROM_DATE" then
-            UserMSG.HandleGetCountDeathRecordFromDate(UserMSG, sender, messagedata);
+            FrameUi.userMSG.HandleGetCountDeathRecordFromDate(FrameUi.userMSG, sender, messagedata);
         elseif command == "GET_COUNT_DEATH_RECORDS_FROM_DATE_RESULT" then
-            UserMSG.HandleGetCountDeathRecordFromDateResult(UserMSG, sender, messagedata);
+            FrameUi.userMSG.HandleGetCountDeathRecordFromDateResult(FrameUi.userMSG, sender, messagedata);
         elseif command == "SEND_DEATH_RECORD" then
-            UserMSG.HandleSendDeathRecord(UserMSG, sender, messagedata, deathList, parsedDeathList)
+            FrameUi.userMSG.HandleSendDeathRecord(FrameUi.userMSG, sender, messagedata, parsedDeathList)
         elseif command == "GET_DEATH_RECORDS_FROM_DATE_RESULT" then
-            UserMSG.HandleGetDeathRecordsFromDateResult(UserMSG, sender, messagedata, deathList)
+            FrameUi.userMSG.HandleGetDeathRecordsFromDateResult(FrameUi.userMSG, sender, messagedata)
         end
     end
 end)

@@ -9,10 +9,11 @@
 #Death.lua
 #DeathLog.lua
 
+Death.lua
+DateTimePickerFrame.lua
 DeathMapUtils.lua
 DeathListUtils.lua
 Utils.lua
-Death.lua
 UserMessages.lua
 MainFrame.lua
 SaveHardcoreDeaths.lua
