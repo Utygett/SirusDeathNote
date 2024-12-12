@@ -15,8 +15,8 @@ function SettingsWidget:new()
     obj.syncWithFriendsCheckbox.text:SetPoint("LEFT", obj.syncWithFriendsCheckbox, "RIGHT", 5, 0)
     obj.syncWithFriendsCheckbox.text:SetText("Синхронизация записей с друзьями")
     obj.syncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends == 1)
-    obj.syncWithFriendsCheckbox:SetScript("OnClick", function(obj)
-        UserSettings.SyncWithFriends = obj.syncWithFriendsCheckbox.GetChecked()
+    obj.syncWithFriendsCheckbox:SetScript("OnClick", function(self)
+        UserSettings.SyncWithFriends = self:GetChecked()
         print("Синхронизация с друзьями: " .. tostring(UserSettings.SyncWithFriends))
     end)
 
@@ -26,16 +26,24 @@ function SettingsWidget:new()
     obj.syncWithGuildCheckbox.text = obj.syncWithGuildCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     obj.syncWithGuildCheckbox.text:SetPoint("LEFT", obj.syncWithGuildCheckbox, "RIGHT", 5, 0)
     obj.syncWithGuildCheckbox.text:SetText("Синхронизация записей с согильдейцами")
-    obj.syncWithGuildCheckbox:SetChecked(UserSettings.SyncWithGuild == 1)
-    obj.syncWithGuildCheckbox:SetScript("OnClick", function(obj)
-        UserSettings.SyncWithGuild = obj.syncWithGuildCheckbox.GetChecked()
+    print("инициализация чек бкосов UserSettings.SyncWithGuild: ", UserSettings.SyncWithGuild)
+    print("инициализация чек бкосов UserSettings.SyncWithFriends: ", UserSettings.SyncWithFriends)
+    if UserSettings.SyncWithGuild == 1 then
+        obj.syncWithGuildCheckbox:SetChecked(true)
+    else
+        obj.syncWithGuildCheckbox:SetChecked(false)
+    end
+    
+    obj.syncWithGuildCheckbox:SetScript("OnClick", function(self)
+        UserSettings.SyncWithGuild = self:GetChecked()
         print("Синхронизация с согильдейцами: " .. tostring(UserSettings.SyncWithGuild))
     end)
 
     obj.dateInput = nil
     obj.timeInput = nil
     obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker(obj.frame, "Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
-        --  selectedDateTime
+        -- Сохраняем дату и время начало синхронизации в настройки
+        UserSettings.dateTimeForSynch = selectedDateTime;
         print("Выбранная дата и время: " .. selectedDateTime)
     end)
 

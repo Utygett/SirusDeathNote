@@ -114,8 +114,8 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Аддон префикс: ", prefix)
         print("Аддон сообщение: ", message)
         local sender, command, messagedata = string.match(message, "([^@]+)@([^@]+)@([^@]+)")
-        print("Команда:", command) -- Выведет: GET_ALL_DEATH_RECORDS
-        print("Отправитель:", sender) -- Выведет: Ещёпятьминут
+        print("Команда:", command)
+        print("Отправитель:", sender)
         print("Данные:", messagedata)
 
         if command == "GET_COUNT_DEATH_RECORDS_FROM_DATE" then

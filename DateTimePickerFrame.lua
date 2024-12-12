@@ -4,6 +4,8 @@ print("ФАйл DateTimePickerFrame загружен")
 function CreateDateTimePicker(parentFrame, title, initialDateTime, onConfirm)
     -- local frame = CreateFrame("Frame", nil, parentFrame) -- Убираем BackdropTemplate
     local frame = CreteMainFrameUi("DateTimePicker", 300, 200, "DIALOG", title)
+    -- Сохраняем дату и время начало синхронизации в настройки
+    UserSettings.dateTimeForSynch = initialDateTime
 
     -- Поле для ввода даты
     local dateInput = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")

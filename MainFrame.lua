@@ -1,8 +1,6 @@
 UiMainFramne = {}
 UiMainFramne.__index = UiMainFramne
 
-UserSettings = UserSettings or {}
-
 
 local function addDropdownMenu(self, text, filerId, filterName)
     local info = UIDropDownMenu_CreateInfo()

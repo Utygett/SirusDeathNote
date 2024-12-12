@@ -15,7 +15,7 @@ function UserMessages:SendGetCountDeathRecordFromDate()
     local onlineFriends = GetOnlineFriends()
     for _, name in ipairs(onlineFriends) do
         self.synchUserMap[name] = -1; -- TODO
-        local lastRecordTime = GetLastRecordTime();
+        local lastRecordTime = UserSettings.dateTimeForSynch
         print("Справшиваем у " .. name .. " количество записей от " .. lastRecordTime);
         local returnCmd = "GET_COUNT_DEATH_RECORDS_FROM_DATE";
         local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. lastRecordTime;

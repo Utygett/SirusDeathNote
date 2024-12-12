@@ -52,15 +52,11 @@ end
 -- Функция для получения времени последней записи
 function GetLastRecordTime()
     local lastTime = 0  -- Изначально устанавливаем время на 0 (это означает, что нет записей)
-    print("Получаем ремя посл записи")
     for key, value in pairs(DeathListSaved) do
-        print("In MAssive")
         -- Исправляем регулярное выражение для корректного извлечения даты
         local _, dateTimeStr = strsplit("#", value)  -- Получаем дату и время после символа #
-        print("Получаем ремя посл записи", dateTimeStr)
         if dateTimeStr then
             local recordTime = parseDateTime(dateTimeStr)
-            print("Получаем ремя посл записи", recordTime)
             if recordTime > lastTime then
                 lastTime = recordTime  -- Обновляем время последней записи
             end
