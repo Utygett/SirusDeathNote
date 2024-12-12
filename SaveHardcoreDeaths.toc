@@ -11,6 +11,7 @@
 
 Death.lua
 DateTimePickerFrame.lua
+SettingWidget.lua
 DeathMapUtils.lua
 DeathListUtils.lua
 Utils.lua

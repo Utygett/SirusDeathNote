@@ -15,7 +15,7 @@ local function addDropdownMenu(self, text, filerId, filterName)
 end
 
 -- Инициализация выпадающего меню
-local function InitializeDropdown(self, level)
+local function initializeDropdown(self, level)
     addDropdownMenu(self, "Фильтр по имени", "name", "Фильтр: Имя");
     addDropdownMenu(self, "Фильтр по классу", "class", "Фильтр: Класс");
     addDropdownMenu(self, "Фильтр по фракции", "fraction", "Фильтр: Фракция");
@@ -26,29 +26,10 @@ local function InitializeDropdown(self, level)
     addDropdownMenu(self, "Фильтр по времени", "deathTime", "Фильтр: Время");
 end
 
-local function creteMainFrameUi()
-    -- Основной фрейм
-local frame = CreateFrame("Frame", "MyAddonFrame", UIParent, "BasicFrameTemplateWithInset")
-frame:SetSize(1050, 450)
-frame:SetPoint("CENTER")
-frame:SetMovable(true)
-frame:EnableMouse(true)
-frame:RegisterForDrag("LeftButton")
-frame:SetScript("OnDragStart", frame.StartMoving)
-frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-frame:SetFrameStrata("MEDIUM")
-
-frame.title = frame:CreateFontString(nil, "OVERLAY")
-frame.title:SetFontObject("GameFontHighlightLarge")
-frame.title:SetPoint("TOP", frame, "TOP", 0, -2)
-frame.title:SetText("Тетрадь смерти")
-return frame
-end
-
 -- Конструктор класса
 function UiMainFramne:new(parsedDeathList)
     local obj = setmetatable({}, UiMainFramne)
-    obj.frame = creteMainFrameUi()
+    obj.frame = CreteMainFrameUi("MainFrame", 1050, 450, "MEDIUM", "Тетрадь смерти")
     obj.data = parsedDeathList
     obj.parsedDeathList = parsedDeathList
 
@@ -76,7 +57,7 @@ function UiMainFramne:new(parsedDeathList)
     -- Создание выпадающего меню
     obj.dropdown = CreateFrame("Frame", "FilterDropdown", obj.frame, "UIDropDownMenuTemplate")
     obj.dropdown:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 200, -25)
-    UIDropDownMenu_Initialize(obj.dropdown, function(...) InitializeDropdown(obj, ...) end)
+    UIDropDownMenu_Initialize(obj.dropdown, function(...) initializeDropdown(obj, ...) end)
     UIDropDownMenu_SetText(obj.dropdown, "Фильтр: Имя") -- Устанавливаем начальный текст
 
         -- Создание заголовков с кнопками для сортировки
@@ -139,19 +120,7 @@ function UiMainFramne:new(parsedDeathList)
     end)
 
     -- Создание окна настроек
-    local SettingsFrame = CreateFrame("Frame", "SettingsFrame", nil, "BasicFrameTemplateWithInset")
-    SettingsFrame:SetSize(300, 200) -- Размер окна
-    SettingsFrame:SetPoint("CENTER") -- Центр экрана
-    SettingsFrame:Hide() -- Скрываем окно по умолчанию
-    SettingsFrame.title = SettingsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    SettingsFrame.title:SetPoint("TOP", SettingsFrame, "TOP", 0, -5)
-    SettingsFrame.title:SetText("Настройки синхронизации")
-    SettingsFrame:SetMovable(true)
-    SettingsFrame:EnableMouse(true)
-    SettingsFrame:SetFrameStrata("HIGH")
-    SettingsFrame:RegisterForDrag("LeftButton")
-    SettingsFrame:SetScript("OnDragStart", SettingsFrame.StartMoving)
-    SettingsFrame:SetScript("OnDragStop", SettingsFrame.StopMovingOrSizing)
+    local SettingsFrame = CreteMainFrameUi("SettingsFrame", 300, 200, "HIGH", "Настройки");
 
 
     -- Чекбокс 1: Синхронизация записей с друзьями
