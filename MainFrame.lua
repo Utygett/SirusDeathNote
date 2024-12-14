@@ -123,6 +123,19 @@ function UiMainFramne:new(parsedDeathList)
     obj.settingsWidget.setHandlerForSynchButton(obj.settingsWidget, function ()
         obj.userMSG.SendGetCountDeathRecordFromDate(obj.userMSG)
     end)
+
+    -- Создание строки количества выводимых записей
+    obj.searchBox = CreateFrame("EditBox", nil, obj.frame, "InputBoxTemplate")
+    obj.searchBox:SetSize(200, 20)
+    obj.searchBox:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 15, -28)
+    obj.searchBox:SetAutoFocus(false)
+    obj.searchBox:SetScript("OnTextChanged", function(self)
+        local searchText = obj.searchBox:GetText()
+        print("obj.searchBox: ", searchText)
+        obj.FilterData(obj, searchText)
+    end)
+
+
     return obj
 end
 
@@ -241,4 +254,9 @@ end
 function UiMainFramne:InitSettings()
     --Инициализация диалога настроек
     FrameUi.settingsWidget.Init(FrameUi.settingsWidget)
+end
+
+function UiMainFramne:UpdateTableAndSortRecords() 
+    self.data = self.parsedDeathList
+    self.SortBy(self, "deathTime")
 end

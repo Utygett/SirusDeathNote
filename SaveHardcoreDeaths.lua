@@ -92,11 +92,11 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         LoadSavedEvents()
         FrameUi.InitSettings(FrameUi)
         
-        FrameUi.frame:Show();
-        print("Check UserSettings.dateTimeForSynch: ", UserSettings.dateTimeForSynch)
+        -- FrameUi.frame:Show();
+        -- print("Check UserSettings.dateTimeForSynch: ", UserSettings.dateTimeForSynch)
         
-        print("Check UserSettings.SyncWithGuild: ", UserSettings.SyncWithGuild)
-        print("Check UserSettings.SyncWithFriends: ", UserSettings.SyncWithFriends)
+        -- print("Check UserSettings.SyncWithGuild: ", UserSettings.SyncWithGuild)
+        -- print("Check UserSettings.SyncWithFriends: ", UserSettings.SyncWithFriends)
         -- Регистрируем префикс
         -- RegisterPrefix("MyAddon")
         -- Пример использования
@@ -105,9 +105,10 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     elseif event == "PLAYER_LOGOUT" then
         SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
-        print("--------CHAT_MSG_ADDON: ", message)
+        -- print("--------CHAT_MSG_ADDON: ", message)
         local event = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
         AddToMap(DeathListSaved, event)
+        print("EVENT: ", event)
         local parsedDeath = Death:ParseHardcoreDeath(event)
         table.insert(parsedDeathList, parsedDeath)
         -- print("Событие добавлено: " .. event:GetDescription())
@@ -115,13 +116,13 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         -- print("-------------------Serealized death:", deathSerealize)
         -- AddToMap(DeathListSaved, deathSerealize);
     elseif event == "CHAT_MSG_ADDON"  and prefix == "MyAddon" then      -- ///вынести в отдельную функцию
-        print("Аддон ивент: ", event)
-        print("Аддон префикс: ", prefix)
-        print("Аддон сообщение: ", message)
+        -- print("Аддон ивент: ", event)
+        -- print("Аддон префикс: ", prefix)
+        -- print("Аддон сообщение: ", message)
         local sender, command, messagedata = string.match(message, "([^@]+)@([^@]+)@([^@]+)")
-        print("Команда:", command)
-        print("Отправитель:", sender)
-        print("Данные:", messagedata)
+        -- print("Команда:", command)
+        -- print("Отправитель:", sender)
+        -- print("Данные:", messagedata)
 
         if command == "GET_COUNT_DEATH_RECORDS_FROM_DATE" then
             FrameUi.userMSG.HandleGetCountDeathRecordFromDate(FrameUi.userMSG, sender, messagedata);
@@ -138,7 +139,7 @@ end)
 -------------------------------------------------------------------------
 
 -- Добавляем Slash-команду для добавления и проверки событий
-SLASH_MYTESTADDON1 = "/testsave"
+SLASH_MYTESTADDON1 = "/shd"
 SlashCmdList["MYTESTADDON"] = function(msg)
     -- if msg == "add" then
     --     -- Добавляем новое событие
@@ -161,9 +162,9 @@ SlashCmdList["MYTESTADDON"] = function(msg)
     --     deathList = {}
     --     print("Все события очищены.")
     if msg == "show" then
-        FrameUi.UpdateTable(FrameUi);
+        FrameUi.UpdateTableAndSortRecords(FrameUi);
         FrameUi.frame:Show();
     else
-        print("Используйте команды: /testsave add, /testsave list, /testsave clear")
+        print("Используйте команды: /testsave show")
     end
 end
