@@ -2,6 +2,21 @@ UiMainFramne = {}
 UiMainFramne.__index = UiMainFramne
 
 
+
+CLASS_COLORS_RU = {
+    ["Воин"] = { r = 0.78, g = 0.61, b = 0.43 },
+    ["Маг"] = { r = 0.41, g = 0.80, b = 0.94 },
+    ["Разбойник"] = { r = 1.00, g = 0.96, b = 0.41 },
+    ["Друид"] = { r = 1.00, g = 0.49, b = 0.04 },
+    ["Охотник"] = { r = 0.67, g = 0.83, b = 0.45 },
+    ["Шаман"] = { r = 0.00, g = 0.44, b = 0.87 },
+    ["Жрец"] = { r = 1.00, g = 1.00, b = 1.00 },
+    ["Чернокнижник"] = { r = 0.58, g = 0.51, b = 0.79 },
+    ["Паладин"] = { r = 0.96, g = 0.55, b = 0.73 },
+    ["Рыцарь смерти"] = { r = 0.77, g = 0.12, b = 0.23 },
+}
+
+
 local function addDropdownMenu(self, text, filerId, filterName)
     local info = UIDropDownMenu_CreateInfo()
     info.text = text
@@ -232,6 +247,7 @@ function UiMainFramne:UpdateTable()
         self.scrollChild.rows[i].name:Show()
 
         self.scrollChild.rows[i].class:SetText(row.class)
+        self.scrollChild.rows[i].class:SetTextColor(GetTextRGBColorFromClassName(row.class))
         self.scrollChild.rows[i].class:Show()    
 
         self.scrollChild.rows[i].fraction:SetText(row.fraction)

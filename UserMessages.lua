@@ -68,6 +68,9 @@ end
 function UserMessages:SendGetCountDeathRecordFromDate()
     print("Начинаем синхронизацию...")
     local onlineFriends = GetOnlineFriends()
+    if #onlineFriends == 0 then
+        print("Нет друзей онлайн...")
+    end
     -- Очищаем мапу перед синхронизацией
     self.synchUserMap = {}
     for _, name in ipairs(onlineFriends) do
