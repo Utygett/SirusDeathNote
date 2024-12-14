@@ -37,7 +37,7 @@ function SettingsWidget:new()
         -- Сохраняем дату и время начало синхронизации в настройки
         UserSettings.dateTimeForSynch = selectedDateTime;
         obj.UpdateSyncDateLabel(obj, selectedDateTime)
-        print("Выбранная дата и время: " .. selectedDateTime)
+        print("Выбранная дата и время с которой начинаем синхронизацию: " .. selectedDateTime)
     end)
 
 
@@ -72,10 +72,8 @@ end
 
 -- Обновляем дату и время в лейбле и виджете выбора даты и времени
 function SettingsWidget:UpdateSettingDatePickerText(dateTime)
-    print("Обновляем время последней записи:" , dateTime)
     UserSettings.dateTimeForSynch = dateTime;
     self.UpdateSyncDateLabel(self, dateTime)
-    --TODO добавить лейбл перед кнопкой (показывает текущее выбранную дату и время синхронизации)
     self.dateInput:SetText(dateTime:match("^(%d+-%d+-%d+)")) -- Устанавливаем дату
     self.timeInput:SetText(dateTime:match("(%d+:%d+:%d+)$")) -- Устанавливаем время
 end

@@ -24,6 +24,7 @@ local function initializeDropdown(self, level)
     addDropdownMenu(self, "Фильтр по времени", "deathTime", "Фильтр: Время");
 end
 
+
 -- Конструктор класса
 function UiMainFramne:new(parsedDeathList)
     local obj = setmetatable({}, UiMainFramne)
@@ -93,6 +94,7 @@ function UiMainFramne:new(parsedDeathList)
         end)
         obj.headerFrames[i] = button
     end
+
         -- Создание строки поиска
     obj.searchBox = CreateFrame("EditBox", nil, obj.frame, "InputBoxTemplate")
     obj.searchBox:SetSize(200, 20)
@@ -100,10 +102,10 @@ function UiMainFramne:new(parsedDeathList)
     obj.searchBox:SetAutoFocus(false)
     obj.searchBox:SetScript("OnTextChanged", function(self)
         local searchText = obj.searchBox:GetText()
-        print("obj.searchBox: ", searchText)
         obj.FilterData(obj, searchText)
     end)
 
+    
         -- Создание основной кнопки "Настройки"
     local settingsButton = CreateFrame("Button", "SettingsButton", obj.frame, "UIPanelButtonTemplate")
     settingsButton:SetSize(100, 25) -- Размер кнопки
@@ -124,17 +126,29 @@ function UiMainFramne:new(parsedDeathList)
         obj.userMSG.SendGetCountDeathRecordFromDate(obj.userMSG)
     end)
 
-    -- Создание строки количества выводимых записей
-    obj.searchBox = CreateFrame("EditBox", nil, obj.frame, "InputBoxTemplate")
-    obj.searchBox:SetSize(200, 20)
-    obj.searchBox:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 15, -28)
-    obj.searchBox:SetAutoFocus(false)
-    obj.searchBox:SetScript("OnTextChanged", function(self)
-        local searchText = obj.searchBox:GetText()
-        print("obj.searchBox: ", searchText)
-        obj.FilterData(obj, searchText)
+    -- Создаем EditBox
+    obj.countShowRecBox = CreateFrame("EditBox", nil, obj.frame)
+    obj.countShowRecBox:SetSize(50, 20)
+    obj.countShowRecBox:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 565, -28)
+    obj.countShowRecBox:SetFontObject(GameFontNormal)
+    obj.countShowRecBox:SetAutoFocus(false)
+    obj.countShowRecBox:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 16, edgeSize = 12,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    obj.countShowRecBox:SetBackdropColor(0.1, 0.1, 0.1, 1)
+    obj.countShowRecBox:SetBackdropBorderColor(0.8, 0.8, 0.8, 1)
+    obj.countShowRecBox:SetTextInsets(6, 6, 6, 6)
+    obj.countShowRecBox:SetScript("OnTextChanged", function(self)
+    UserSettings.countShowRecords = tonumber(obj.countShowRecBox:GetText())
+    obj.UpdateTable(obj)
     end)
 
+    local countRecordLabel = obj.frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    countRecordLabel:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 350, -32)
+    countRecordLabel:SetText("Количество отображаемых записей")
 
     return obj
 end
@@ -174,7 +188,11 @@ function UiMainFramne:UpdateTable()
 
     -- Высота содержимого будет зависеть от количества строк
     local rowHeight = 20
-    local totalHeight = #self.data * rowHeight
+    local rowCount = #self.data
+    if UserSettings.countShowRecords and #self.data > UserSettings.countShowRecords then
+        rowCount = UserSettings.countShowRecords
+    end
+    local totalHeight = rowCount * rowHeight
     self.scrollChild:SetHeight(totalHeight)
 
     -- Создание строк таблицы
@@ -236,6 +254,9 @@ function UiMainFramne:UpdateTable()
 
         self.scrollChild.rows[i].deathTime:SetText(row.deathTime)
         self.scrollChild.rows[i].deathTime:Show()
+        if UserSettings.countShowRecords and i >= UserSettings.countShowRecords then
+            break;
+        end
     end
 end
 -- Функция для фильтрации данных
@@ -253,10 +274,17 @@ end
 -- Так как настройки(БД) прогружаются только после логина, в конструкторе мы не можем их использовать
 function UiMainFramne:InitSettings()
     --Инициализация диалога настроек
-    FrameUi.settingsWidget.Init(FrameUi.settingsWidget)
+    self.settingsWidget:Init(self.settingsWidget)
+    local countShowRecords = UserSettings.countShowRecords
+    if UserSettings.countShowRecords == nil then
+        UserSettings.countShowRecords = 100
+    end
+    self.countShowRecBox:SetText(tostring(UserSettings.countShowRecords))
 end
 
 function UiMainFramne:UpdateTableAndSortRecords() 
     self.data = self.parsedDeathList
+    self.sortAscending = true
+    self.sortColumn = "deathTime"
     self.SortBy(self, "deathTime")
 end

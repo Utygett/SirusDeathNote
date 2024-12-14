@@ -1,5 +1,4 @@
 -- утилиты для работы с базлй данных смертей
-print("ФАйл утилиты смертей загружен")
 -- Функция для преобразования строки даты в числовой формат времени
 local function parseDateTime(dateTimeStr)
     -- print("parseDateTime: ", dateTimeStr)

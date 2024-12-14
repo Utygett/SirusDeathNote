@@ -88,7 +88,7 @@ FrameUi.frame:RegisterEvent("CHAT_MSG_ADDON")
 
 FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     if event == "PLAYER_LOGIN" then
-        print("Аддон загружен!")
+        print("Аддон SaveHardcoreDeaths загружен! Используйте команды: /shd show")
         LoadSavedEvents()
         FrameUi.InitSettings(FrameUi)
         
@@ -108,7 +108,6 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         -- print("--------CHAT_MSG_ADDON: ", message)
         local event = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
         AddToMap(DeathListSaved, event)
-        print("EVENT: ", event)
         local parsedDeath = Death:ParseHardcoreDeath(event)
         table.insert(parsedDeathList, parsedDeath)
         -- print("Событие добавлено: " .. event:GetDescription())
@@ -165,6 +164,6 @@ SlashCmdList["MYTESTADDON"] = function(msg)
         FrameUi.UpdateTableAndSortRecords(FrameUi);
         FrameUi.frame:Show();
     else
-        print("Используйте команды: /testsave show")
+        print("Используйте команды: /shd show")
     end
 end

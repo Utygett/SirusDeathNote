@@ -1,7 +1,4 @@
-print("ФАйл Death загружен")
 UserSettings = UserSettings or {}
-
-
 
 
 -- Определение класса Death

@@ -1,5 +1,3 @@
-print("ФАйл DateTimePickerFrame загружен")
-
 -- Функция для создания виджета выбора даты и времени
 function CreateDateTimePicker(parentFrame, title, initialDateTime, onConfirm)
     -- local frame = CreateFrame("Frame", nil, parentFrame) -- Убираем BackdropTemplate
