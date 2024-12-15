@@ -10,25 +10,58 @@ function SettingsWidget:new()
 
     -- Чекбокс 1: Синхронизация записей с друзьями
     obj.syncWithFriendsCheckbox = CreateFrame("CheckButton", "SyncWithFriendsCheckbox", obj.frame, "UICheckButtonTemplate")
-    obj.syncWithFriendsCheckbox:SetPoint("TOPLEFT", 20, -40)
+    obj.syncWithFriendsCheckbox:SetPoint("TOPLEFT", 20, -30)
     obj.syncWithFriendsCheckbox.text = obj.syncWithFriendsCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     obj.syncWithFriendsCheckbox.text:SetPoint("LEFT", obj.syncWithFriendsCheckbox, "RIGHT", 5, 0)
     obj.syncWithFriendsCheckbox.text:SetText("Синхронизация записей с друзьями")
     obj.syncWithFriendsCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithFriends = self:GetChecked() == true;
+        if not UserSettings.SyncWithMe then
+            self:SetChecked(false) -- Запретить включение, если третий чекбокс выключен
+            print("Невозможно включить синхронизацию с друзьями: разрешение синхронизации отключено")
+            return
+        end
+    
+        UserSettings.SyncWithFriends = self:GetChecked() == 1
         print("Синхронизация с друзьями: " .. tostring(UserSettings.SyncWithFriends))
     end)
 
     -- Чекбокс 2: Синхронизация записей с согильдейцами
     obj.syncWithGuildCheckbox = CreateFrame("CheckButton", "SyncWithGuildCheckbox", obj.frame, "UICheckButtonTemplate")
-    obj.syncWithGuildCheckbox:SetPoint("TOPLEFT", 20, -80)
+    obj.syncWithGuildCheckbox:SetPoint("TOPLEFT", 20, -60)
     obj.syncWithGuildCheckbox.text = obj.syncWithGuildCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     obj.syncWithGuildCheckbox.text:SetPoint("LEFT", obj.syncWithGuildCheckbox, "RIGHT", 5, 0)
     obj.syncWithGuildCheckbox.text:SetText("Синхронизация записей с согильдейцами")
     
     obj.syncWithGuildCheckbox:SetScript("OnClick", function(self)
-        UserSettings.SyncWithGuild = self:GetChecked() == true;
+        if not UserSettings.SyncWithMe then
+            self:SetChecked(false) -- Запретить включение, если третий чекбокс выключен
+            print("Невозможно включить синхронизацию с согильдейцами: разрешение синхронизации отключено")
+            return
+        end
+        UserSettings.SyncWithGuild = self:GetChecked() == 1;
         print("Синхронизация с согильдейцами: " .. tostring(UserSettings.SyncWithGuild))
+    end)
+
+
+    -- Чекбокс 3: Разрешить синхронизацию со мной
+    obj.syncWithMe = CreateFrame("CheckButton", "SyncWithGuildCheckbox", obj.frame, "UICheckButtonTemplate")
+    obj.syncWithMe:SetPoint("TOPLEFT", 20, -90)
+    obj.syncWithMe.text = obj.syncWithMe:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    obj.syncWithMe.text:SetPoint("LEFT", obj.syncWithMe, "RIGHT", 5, 0)
+    obj.syncWithMe.text:SetText("Разрешить синхронизацию со мной")
+    
+    obj.syncWithMe:SetScript("OnClick", function(self)
+        UserSettings.SyncWithMe = self:GetChecked() == 1;
+        print("Синхронизация со мной: " .. tostring(UserSettings.SyncWithMe))
+        if not UserSettings.SyncWithMe then
+            -- Отключаем первые два чекбокса, если "синхронизация со мной" выключена
+            obj.syncWithFriendsCheckbox:SetChecked(false)
+            UserSettings.SyncWithFriends = false
+            obj.syncWithGuildCheckbox:SetChecked(false)
+            UserSettings.SyncWithGuild = false
+    
+            print("Синхронизация с друзьями и согильдейцами отключена из-за запрета синхронизации")
+        end
     end)
 
     obj.dateInput = nil
@@ -87,4 +120,5 @@ function SettingsWidget:Init()
     self.UpdateSettingDatePickerText(self, GetLastRecordTime())
     self.syncWithGuildCheckbox:SetChecked(UserSettings.SyncWithGuild)
     self.syncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends)
+    self.syncWithMe:SetChecked(UserSettings.SyncWithMe)
 end

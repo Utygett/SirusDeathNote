@@ -179,10 +179,15 @@ function UiMainFramne:SortBy(column)
     end
     table.sort(self.data, function(a, b)
         if self.sortAscending then
-            return a[column] < b[column]
+            if a[column] and b[column] then
+                return a[column] < b[column]
+            end
         else
-            return a[column] > b[column]
+            if a[column] and b[column] then
+                return a[column] > b[column]
+            end
         end
+        return false;
     end)
     self.UpdateTable(self)
 end

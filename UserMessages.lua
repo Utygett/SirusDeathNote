@@ -67,21 +67,51 @@ end
 
 function UserMessages:SendGetCountDeathRecordFromDate()
     print("Начинаем синхронизацию...")
-    local onlineFriends = GetOnlineFriends()
-    if #onlineFriends == 0 then
-        print("Нет друзей онлайн...")
+
+    if UserSettings.SyncWithFriends == false and UserSettings.SyncWithGuild == false then
+        print("Синхронизация не выполнена, включите синхронизацию с друзьями или согильдейцами.")
     end
+
+    local onlineFriends = GetOnlineFriends()
     -- Очищаем мапу перед синхронизацией
     self.synchUserMap = {}
-    for _, name in ipairs(onlineFriends) do
-        -- Проставляет всем в списке значение в -1, потом будем проверять если не -1 значит пришёл результат
-        self.synchUserMap[name] = -1;
+
+    if UserSettings.SyncWithFriends then
+        
+        for _, name in ipairs(onlineFriends) do
+            -- Проставляет всем в списке значение в -1, потом будем проверять если не -1 значит пришёл результат
+            self.synchUserMap[name] = -1;
+        end
+    end
+
+    if UserSettings.SyncWithGuild then
+        -- Обновляем список гильдии, чтобы получить актуальные данные
+        GuildRoster()
+        -- Получаем количество согильдейцев
+        local numMembers = GetNumGuildMembers()
+        local playerName = UnitName("player")
+        for i = 1, numMembers do
+            -- Получаем информацию о каждом члене гильдии
+            local name, rank, rankIndex, level, class, zone, note, officernote, online = GetGuildRosterInfo(i)
+            
+            -- Проверяем, онлайн ли игрок
+            if online then
+                if name ~= playerName then
+                    self.synchUserMap[name] = -1
+                end
+            end
+        end      
+    end
+
+        -- Итерация по всей мапе и вывод ключей
+    for name, _ in pairs(self.synchUserMap) do
         local lastRecordTime = UserSettings.dateTimeForSynch
         print("Справшиваем у " .. name .. " количество записей от " .. lastRecordTime);
         local returnCmd = "GET_COUNT_DEATH_RECORDS_FROM_DATE";
         local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. lastRecordTime;
         SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", name);
     end
+
 end
 
 function UserMessages:HandleGetCountDeathRecordFromDate(sender, messagedata)

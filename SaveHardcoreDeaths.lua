@@ -7,6 +7,40 @@ DeathListSaved = DeathListSaved or {}
 
 
 
+-- Создание функции для отображения сообщения
+function ShowDeathMessage(textMessage)
+    -- Создаем фрейм для отображения текста
+    local deathMessageFrame = CreateFrame("Frame", nil, UIParent)
+    deathMessageFrame:SetSize(300, 50) -- Ширина и высота фрейма
+    deathMessageFrame:SetPoint("CENTER", UIParent, "CENTER") -- Позиция по центру экрана
+
+    -- Устанавливаем фон через текстуру
+    deathMessageFrame.texture = deathMessageFrame:CreateTexture(nil, "BACKGROUND")
+    deathMessageFrame.texture:SetTexture(0, 0, 0, 0.5) -- Полупрозрачный черный фон
+    deathMessageFrame.texture:SetAllPoints(deathMessageFrame) -- Занимаем всю площадь фрейма
+
+    -- Добавляем текстовое поле
+    deathMessageFrame.text = deathMessageFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightLarge")
+    deathMessageFrame.text:SetPoint("CENTER", deathMessageFrame, "CENTER")
+    deathMessageFrame.text:SetText(textMessage) -- Формат текста
+
+    -- Таймер для скрытия фрейма через 3 секунды
+    local elapsed = 0
+    deathMessageFrame:SetScript("OnUpdate", function(self, delta)
+        elapsed = elapsed + delta
+        if elapsed >= 10 then
+            self:Hide()
+            self:SetScript("OnUpdate", nil) -- Отключаем обработчик OnUpdate
+        end
+    end)
+end
+
+
+
+
+
+
+
 -- local classColor ={
 --     ["Hunter"] = { r = 0.67, g = 0.83, b = 0.45, a=1 },
 --     ["Warlock"] = { r = 0.58, g = 0.51, b = 0.79, a=1 },
@@ -91,7 +125,7 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Аддон SaveHardcoreDeaths загружен! Используйте команды: /shd show")
         LoadSavedEvents()
         FrameUi.InitSettings(FrameUi)
-        
+        -- Пример использования функции
         -- FrameUi.frame:Show();
         -- print("Check UserSettings.dateTimeForSynch: ", UserSettings.dateTimeForSynch)
         
@@ -106,10 +140,12 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
         -- print("--------CHAT_MSG_ADDON: ", message)
-        local event = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
-        AddToMap(DeathListSaved, event)
-        local parsedDeath = Death:ParseHardcoreDeath(event)
+        local death = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
+        AddToMap(DeathListSaved, death)
+        local parsedDeath = Death:ParseHardcoreDeath(death)
         table.insert(parsedDeathList, parsedDeath)
+        -- Пример использования функции 
+        -- ShowDeathMessage(death.GetDescription(death))
         -- print("Событие добавлено: " .. event:GetDescription())
         -- local deathSerealize = SerializeRecord(event)
         -- print("-------------------Serealized death:", deathSerealize)
@@ -163,7 +199,28 @@ SlashCmdList["MYTESTADDON"] = function(msg)
     if msg == "show" then
         FrameUi.UpdateTableAndSortRecords(FrameUi);
         FrameUi.frame:Show();
+    elseif msg == "testShowMsg" then
+        ShowDeathMessage(DeathListSaved[0])
     else
         print("Используйте команды: /shd show")
+    end
+end
+
+-- Обновляем список гильдии, чтобы получить актуальные данные
+GuildRoster()
+
+-- Получаем количество согильдейцев
+local numMembers = GetNumGuildMembers()
+
+-- Список онлайн согильдейцев
+print("Список согильдейцев, которые сейчас онлайн:")
+
+for i = 1, numMembers do
+    -- Получаем информацию о каждом члене гильдии
+    local name, rank, rankIndex, level, class, zone, note, officernote, online = GetGuildRosterInfo(i)
+
+    -- Проверяем, онлайн ли игрок
+    if online then
+        print(string.format("Имя: %s, Уровень: %d, Класс: %s, Зона: %s", name, level, class, zone))
     end
 end
