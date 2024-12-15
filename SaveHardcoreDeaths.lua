@@ -62,18 +62,16 @@ local deathList = {}
 local parsedDeathList = {}
 -- Загрузка данных
 local function LoadSavedEvents()
-        for _, record in pairs(DeathListSaved) do
+        for key, record in pairs(DeathListSaved) do
             -- print("--------------------recordIS:", record)
             -- local death = Death:FromTable(DeserializeRecord(record))
             -- table.insert(deathList, death)
             local parsedDeath = Death:ParseHardcoreDeath(record)
-            table.insert(parsedDeathList, parsedDeath)
-            
-
-            -- local deathSerealize = death.DeathMessage .. "#" .. death.DeathTime
-            -- print("-------------------Serealized death:", deathSerealize)
-            -- AddToMap(DeathListSaved, deathSerealize);
-
+            if parsedDeath.name == nil then
+                DeathListSaved[key] = nil;
+            else
+                table.insert(parsedDeathList, parsedDeath)
+            end
         end
         print("Сохранённые события загружены!")
 
@@ -140,10 +138,12 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
         -- print("--------CHAT_MSG_ADDON: ", message)
-        local death = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
-        AddToMap(DeathListSaved, death)
-        local parsedDeath = Death:ParseHardcoreDeath(death)
-        table.insert(parsedDeathList, parsedDeath)
+        local death, parsedDeath = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
+        if death ~= nil then
+            AddToMap(DeathListSaved, death)
+            table.insert(parsedDeathList, parsedDeath)    
+        end
+        
         -- Пример использования функции 
         -- ShowDeathMessage(death.GetDescription(death))
         -- print("Событие добавлено: " .. event:GetDescription())
@@ -203,24 +203,5 @@ SlashCmdList["MYTESTADDON"] = function(msg)
         ShowDeathMessage(DeathListSaved[0])
     else
         print("Используйте команды: /shd show")
-    end
-end
-
--- Обновляем список гильдии, чтобы получить актуальные данные
-GuildRoster()
-
--- Получаем количество согильдейцев
-local numMembers = GetNumGuildMembers()
-
--- Список онлайн согильдейцев
-print("Список согильдейцев, которые сейчас онлайн:")
-
-for i = 1, numMembers do
-    -- Получаем информацию о каждом члене гильдии
-    local name, rank, rankIndex, level, class, zone, note, officernote, online = GetGuildRosterInfo(i)
-
-    -- Проверяем, онлайн ли игрок
-    if online then
-        print(string.format("Имя: %s, Уровень: %d, Класс: %s, Зона: %s", name, level, class, zone))
     end
 end
