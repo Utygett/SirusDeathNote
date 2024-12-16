@@ -96,6 +96,7 @@ function UserMessages:SendGetCountDeathRecordFromDate()
             
             -- Проверяем, онлайн ли игрок
             if online then
+                -- Проверяем что это не мы (чтобы не спрашивать у себя)
                 if name ~= playerName then
                     self.synchUserMap[name] = -1
                 end
