@@ -8,6 +8,9 @@ function UserMessages:new()
     obj.addonName = "MyAddon";
     obj.synchUserMap = {} -- Подумать над механизмом получения количества записей от всех пользователей и спрашивать у того у кого их больше.
     obj.synchProcessed = false
+    obj.synchGettingRecord = false
+    obj.synchCountRecord = 0
+    obj.synchNumberOfRecordsReceived = 0
     return obj
 end
 
@@ -42,6 +45,7 @@ function UserMessages:StartSynch()
     
     print("Начинаем обмен записями, время: ", date("%Y-%m-%d %H:%M:%S"))
     if usName and maxCount > 0 then
+        self.synchNumberOfRecordsReceived = maxCount
         print("Обмен записями начался с ", usName)
         local lastRecordTime = UserSettings.dateTimeForSynch
         local returnCmd = "GET_DEATH_RECORDS_FROM_DATE_RESULT";
@@ -49,6 +53,21 @@ function UserMessages:StartSynch()
         SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", usName)
     end
     self.synchUserMap = {}
+end
+
+
+-- Проверям пришли ли все записи и если нет то запускаем повторную синхронизацию
+function UserMessages:CheckGettingAllRecordsWithSynch()
+    if UserMessages.synchGettingRecord == false then
+        self.synchNumberOfRecordsReceived = 0
+        return
+    else
+        print("Синхронизация завершилась неудачей!!!")
+        print("Количесвто ожидаемых записей: ", self.synchCountRecord)
+        print("Количесвто полученных записей: ", self.synchNumberOfRecordsReceived)
+        print("Повторите синхронизацию в ручном режиме!!!")
+        UserMessages.synchGettingRecord = false
+    end
 end
 
 -- Запуск ожидания всех запросов по таймеру
@@ -65,11 +84,27 @@ function UserMessages:AwaitAllUserToSynch()
     end)
 end
 
+-- Запуск ожидания всех запросов по таймеру
+function UserMessages:AwaitAllRecordsToSynch()
+    self.synchGettingRecord = true
+    print("Включаем таймер, время: ", date("%Y-%m-%d %H:%M:%S"))
+    local thisObj = self;
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnUpdate", function(self, elapsed)
+        self.elapsed = (self.elapsed or 0) + elapsed
+        if self.elapsed >= 10 then
+            thisObj.CheckGettingAllRecordsWithSynch(thisObj)
+        end
+    end)
+end
+
+
 function UserMessages:SendGetCountDeathRecordFromDate()
     print("Начинаем синхронизацию...")
 
     if UserSettings.SyncWithFriends == false and UserSettings.SyncWithGuild == false then
         print("Синхронизация не выполнена, включите синхронизацию с друзьями или согильдейцами.")
+        return
     end
 
     local onlineFriends = GetOnlineFriends()
@@ -125,7 +160,7 @@ end
 
 function UserMessages:HandleGetCountDeathRecordFromDateResult(sender, messagedata)
     print("Получаем от " .. sender .. " количество записей: " .. messagedata);
-    self.synchUserMap[sender] = tonumber(messagedata);-- TODO
+    self.synchUserMap[sender] = tonumber(messagedata);
     if self.synchProcessed == false then
         self.AwaitAllUserToSynch(self)
     end
@@ -135,10 +170,18 @@ function UserMessages:HandleGetCountDeathRecordFromDateResult(sender, messagedat
 end
 
 function UserMessages:HandleSendDeathRecord(sender, messagedata, parsedDeathList)
+    self.synchNumberOfRecordsReceived = self.synchNumberOfRecordsReceived + 1
+    print("Получена запись №", self.synchNumberOfRecordsReceived)
     print("Получена запись:", messagedata, " от игрока: ", sender);
     AddToMap(DeathListSaved, messagedata)
     local parsedDeath = Death:ParseHardcoreDeath(messagedata)
     table.insert(parsedDeathList, parsedDeath)
+    if self.synchNumberOfRecordsReceived >= self.synchCountRecord then
+        self.synchGettingRecord = false;
+        self.synchNumberOfRecordsReceived = 0
+        self.synchCountRecord = 0
+        print("Синхронизация завершена успешно!!!")
+    end
 end
 
 
