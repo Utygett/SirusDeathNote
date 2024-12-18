@@ -45,7 +45,7 @@ function UserMessages:StartSynch()
     
     print("Начинаем обмен записями, время: ", date("%Y-%m-%d %H:%M:%S"))
     if usName and maxCount > 0 then
-        self.synchNumberOfRecordsReceived = maxCount
+        self.synchCountRecord = maxCount
         print("Обмен записями начался с ", usName)
         local lastRecordTime = UserSettings.dateTimeForSynch
         local returnCmd = "GET_DEATH_RECORDS_FROM_DATE_RESULT";
@@ -172,7 +172,7 @@ end
 function UserMessages:HandleSendDeathRecord(sender, messagedata, parsedDeathList)
     self.synchNumberOfRecordsReceived = self.synchNumberOfRecordsReceived + 1
     print("Получена запись №", self.synchNumberOfRecordsReceived)
-    print("Получена запись:", messagedata, " от игрока: ", sender);
+    -- print("Получена запись:", messagedata, " от игрока: ", sender);
     AddToMap(DeathListSaved, messagedata)
     local parsedDeath = Death:ParseHardcoreDeath(messagedata)
     table.insert(parsedDeathList, parsedDeath)

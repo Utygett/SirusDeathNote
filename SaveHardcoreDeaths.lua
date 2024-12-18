@@ -76,6 +76,8 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         print("Аддон SaveHardcoreDeaths загружен! Используйте команды: /shd show")
         LoadSavedEvents()
         FrameUi.InitSettings(FrameUi)
+        -- Вызов функции создания значка
+        CreateCircularMinimapButton()
     elseif event == "PLAYER_LOGOUT" then
         SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
@@ -139,171 +141,89 @@ SlashCmdList["MYTESTADDON"] = function(msg)
         print("Используйте команды: /shd show")
     end
 end
+-- Создаем переменные для управления кнопкой
+local minimapButton = nil
+local radius = 80 -- Радиус движения кнопки (зависит от размера миникарты)
+local angle = 0 -- Начальный угол кнопки (в радианах)
+
+-- Основная функция для создания значка на миникарте
+function CreateCircularMinimapButton()
+    angle = UserSettings.MinimapButtonAngle or 0 -- Начальный угол кнопки (в радианах)
+    -- Создаем фрейм (кнопка)
+    minimapButton = CreateFrame("Button", "MyCircularMinimapButton", Minimap)
+    minimapButton:SetFrameStrata("MEDIUM") -- Уровень отображения
+    minimapButton:SetWidth(32) -- Ширина кнопки
+    minimapButton:SetHeight(32) -- Высота кнопки
+
+    -- Добавляем текстуру для кнопки (иконка)
+    minimapButton.icon = minimapButton:CreateTexture(nil, "BACKGROUND")
+    minimapButton.icon:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\minimap32.tga") -- Замена иконки
+    minimapButton.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95) -- Обрезаем края иконки
+    minimapButton.icon:SetAllPoints(minimapButton) -- Занимает всю кнопку
+
+    -- Задаем начальное положение кнопки
+    UpdateMinimapButtonPosition()
+
+    -- Добавляем tooltip (подсказку при наведении мыши)
+    minimapButton:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+        GameTooltip:ClearLines()
+        GameTooltip:AddLine("Тетрать смерти", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    minimapButton:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+
+    -- Обработка кликов на кнопку
+    minimapButton:SetScript("OnClick", function(self, button)
+        if button == "LeftButton" then
+            if FrameUi.frame.IsShown(FrameUi.frame) then
+                FrameUi.frame.Hide(FrameUi.frame)
+            else
+                FrameUi.frame.Show(FrameUi.frame)
+            end
+        end
+    end)
+
+    -- Обработка перетаскивания кнопки
+    minimapButton:SetMovable(true)
+    minimapButton:EnableMouse(true)
+    minimapButton:RegisterForDrag("LeftButton")
+    minimapButton:SetScript("OnDragStart", function(self)
+        self:LockHighlight()
+        self.isMoving = true
+    end)
+    minimapButton:SetScript("OnDragStop", function(self)
+        self:UnlockHighlight()
+        self.isMoving = false
+    end)
+
+    -- Перемещение кнопки в пределах круга
+    minimapButton:SetScript("OnUpdate", function(self)
+        if self.isMoving then
+            local mx, my = Minimap:GetCenter()
+            local cx, cy = GetCursorPosition()
+            local scale = UIParent:GetEffectiveScale()
+            cx, cy = cx / scale, cy / scale
+
+            -- Вычисляем угол между центром миникарты и курсором
+            angle = math.atan2(cy - my, cx - mx)
+            UserSettings.MinimapButtonAngle = angle
+            -- Обновляем позицию кнопки
+            UpdateMinimapButtonPosition()
+        end
+    end)
+end
+
+-- Функция для обновления позиции кнопки на миникарте
+function UpdateMinimapButtonPosition()
+    -- Рассчитываем координаты кнопки на основе угла и радиуса
+    local xOffset = math.cos(angle) * radius
+    local yOffset = math.sin(angle) * radius
+
+    -- Устанавливаем новое положение кнопки
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", xOffset, yOffset)
+end
 
 
-
--- -- Создаем текстуру на карте
--- local mapTexture = WorldMapDetailFrame:CreateTexture(nil, "OVERLAY")
--- mapTexture:SetTexture("Interface\\Buttons\\WHITE8x8") -- Белая текстура
--- mapTexture:SetVertexColor(0, 1, 0, 1) -- Зелёный цвет
--- mapTexture:SetSize(200, 2) -- Размер текстуры (длина линии 200 пикселей, толщина 2)
--- mapTexture:SetPoint("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", 100, -100) -- Привязка к карте
--- mapTexture:Show()
-
-
-
--- -- Функция для рисования линии с использованием сегментов
--- local function DrawLineWithSegments(x1, y1, x2, y2, thickness)
---     -- Рассчитываем размеры карты
---     local mapWidth = WorldMapDetailFrame:GetWidth()
---     local mapHeight = WorldMapDetailFrame:GetHeight()
-
---     -- Переводим координаты в пиксели карты
---     local startX = x1 * mapWidth
---     local startY = -y1 * mapHeight
---     local endX = x2 * mapWidth
---     local endY = -y2 * mapHeight
-
---     -- Определяем шаг (размер сегмента)
---     local segments = 10 -- Количество точек на линии
---     local stepX = (endX - startX) / segments
---     local stepY = (endY - startY) / segments
-
---     -- Создаем текстуры для каждого сегмента
---     for i = 0, segments do
---         local segment = WorldMapDetailFrame:CreateTexture(nil, "OVERLAY")
---         segment:SetTexture("Interface\\Buttons\\WHITE8x8") -- Белая текстура
---         segment:SetVertexColor(1, 0, 0, 1) -- Красный цвет
---         segment:SetSize(thickness, thickness) -- Толщина линии
-
---         -- Вычисляем положение текущего сегмента
---         local segmentX = startX + stepX * i
---         local segmentY = startY + stepY * i
-
---         -- Устанавливаем точку на карте
---         segment:SetPoint("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", segmentX, segmentY)
---         segment:Show()
---     end
--- end
-
--- -- Пример использования: рисуем диагональную линию
--- DrawLineWithSegments(0.3, 0.3, 0.7, 0.6, 2) -- Линия от (30%, 30%) до (70%, 60%) толщиной 2 пикселя
-
--- -----------------------------------------------
-
--- -- Создаем основной фрейм аддона
--- local RouteTracker = CreateFrame("Frame", "RouteTrackerFrame")
--- RouteTracker:RegisterEvent("PLAYER_LOGIN")
--- RouteTracker:RegisterEvent("ZONE_CHANGED")
--- RouteTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
--- RouteTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
--- RouteTracker:RegisterEvent("MINIMAP_UPDATE_ZOOM")
-
--- -- Хранилище маршрута
--- local routeData = {}
--- local maxDays = 7
--- local updateInterval = 5 -- Обновляем позицию каждые 5 секунд
--- local lastUpdate = 0
-
--- -- Функция для получения текущего времени
--- local function GetCurrentTime()
---     return date("%Y-%m-%d %H:%M:%S")
--- end
-
--- -- Функция для получения текущего местоположения
--- local function GetPlayerPosition()
---     local mapID = GetCurrentMapAreaID()
---     local x, y = GetPlayerMapPosition("player")
---     return mapID, x, y
--- end
-
--- -- Сохраняем позицию игрока
--- local function SavePlayerPosition()
---     local timestamp = GetCurrentTime()
---     local mapID, x, y = GetPlayerPosition()
---     print("mapID, x, y", mapID, x, y)
---     if not routeData[timestamp] then
---         routeData[timestamp] = {}
---     end
-
---     table.insert(routeData[timestamp], {mapID = mapID, x = x, y = y})
-
---     local cutoffTime = time() - (maxDays * 24 * 60 * 60)
---     for t, _ in pairs(routeData) do
---         -- Преобразуем строку даты в таблицу времени
---         local timeTable = {year = tonumber(strsub(t, 1, 4)), month = tonumber(strsub(t, 6, 7)), day = tonumber(strsub(t, 9, 10)),
---                            hour = tonumber(strsub(t, 12, 13)), min = tonumber(strsub(t, 15, 16)), sec = tonumber(strsub(t, 18, 19))}
---         local timestamp = time(timeTable)
-    
---         if timestamp < cutoffTime then
---             routeData[t] = nil
---         end
---     end
--- end
-
--- -- Создаем линии для маршрута
--- local function DrawRoute()
---     print("Рисумем линии")
---     -- Очищаем предыдущие линии
---     if RouteTracker.lines then
---         for _, line in ipairs(RouteTracker.lines) do
---             print("line", line)
---             line:Hide()
---         end
---     end
---     RouteTracker.lines = {}
-
---     -- Создаем линии для маршрута
---     for t, positions in pairs(routeData) do
---         print("t", t, positions)
-        
---             local p1, p2 = positions[1], positions[2]
-           
---             -- Пропускаем, если нет данных о позиции
---             if p1 and p2 then
---                 print("p1, p2", p1, p2)
---                 local line = WorldMapFrame:CreateTexture(nil, "ARTWORK")
---                 line:SetTexture("Interface\\Buttons\\WHITE8x8") -- Белая текстура
---                 line:SetVertexColor(1, 0, 0, 1) -- Красный цвет, непрозрачный
-
---                 -- Вычисляем начальные и конечные координаты
---                 local x1, y1 = p1.x * WorldMapFrame:GetWidth(), -p1.y * WorldMapFrame:GetHeight()
---                 local x2, y2 = p2.x * WorldMapFrame:GetWidth(), -p2.y * WorldMapFrame:GetHeight()
-                
---                 -- Определяем размеры и позицию текстуры
---                 line:ClearAllPoints()
---                 line:SetPoint("TOPLEFT", WorldMapFrame, "TOPLEFT", x1, y1)
---                 line:SetPoint("BOTTOMRIGHT", WorldMapFrame, "TOPLEFT", x2, y2)
-
---                 line:Show()
---                 table.insert(RouteTracker.lines, line)
---             end
---     end
--- end
-
-
--- -- Обработчик событий
--- RouteTracker:SetScript("OnEvent", function(self, event, ...)
---     if event == "PLAYER_LOGIN" then
---         print("RouteTracker загружен. Следим за маршрутом!")
---     elseif event == "ZONE_CHANGED" or event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_ENTERING_WORLD" then
---         SavePlayerPosition()
---         print("SavePlayerPosition")
---     end
--- end)
-
--- -- Обработчик обновления
--- RouteTracker:SetScript("OnUpdate", function(self, elapsed)
---     lastUpdate = lastUpdate + elapsed
---     if lastUpdate >= updateInterval then
---         print("SavePlayerPosition")
---         SavePlayerPosition()
---         lastUpdate = 0
---     end
--- end)
-
--- -- Отображаем маршрут при открытии карты
--- WorldMapFrame:HookScript("OnShow", function()
---     print("Карта открыта")
---     DrawRoute()
--- end)
