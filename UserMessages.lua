@@ -2,11 +2,13 @@
 UserMessages = {}
 UserMessages.__index = UserMessages
 
+Obj_synchUserMap = {}
+
 -- Конструктор класса
 function UserMessages:new()
     local obj = setmetatable({}, UserMessages)
     obj.addonName = "MyAddon";
-    obj.synchUserMap = {} -- Подумать над механизмом получения количества записей от всех пользователей и спрашивать у того у кого их больше.
+    Obj_synchUserMap = {} -- Подумать над механизмом получения количества записей от всех пользователей и спрашивать у того у кого их больше.
     obj.synchProcessed = false
     obj.synchGettingRecord = false
     obj.synchCountRecord = 0
@@ -16,13 +18,16 @@ end
 
 -- Проверяем пришли ли все запросы на количество записей
 function UserMessages:CheckReadyUserGetCountRecord()
-    local readyToStart = true;
-    for userName, count in ipairs(self.synchUserMap) do
+    print("CheckReadyUserGetCountRecord")
+    for userName, count in pairs(Obj_synchUserMap) do
+        print("CheckReadyUserGetCountRecord username:", userName , count )
         if count < 0 then
-            readyToStart = false;
+            print("CheckReadyUserGetCountRecord return false")
+            return false;
         end
     end
-    return readyToStart
+    print("CheckReadyUserGetCountRecord return true")
+    return true;
 end
 
 -- Нанчинаем синхронизацию
@@ -35,7 +40,7 @@ function UserMessages:StartSynch()
     local usName = nil
     local maxCount = 0
 
-    for userName, count in pairs(self.synchUserMap) do
+    for userName, count in pairs(Obj_synchUserMap) do
         if maxCount < count then
             maxCount = count
             usName = userName
@@ -52,7 +57,7 @@ function UserMessages:StartSynch()
         local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. lastRecordTime
         SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", usName)
     end
-    self.synchUserMap = {}
+    Obj_synchUserMap = {}
 end
 
 
@@ -72,6 +77,10 @@ end
 
 -- Запуск ожидания всех запросов по таймеру
 function UserMessages:AwaitAllUserToSynch()
+    print("AwaitAllUserToSynch self.synchProcessed == ", self.synchProcessed)
+    if self.synchProcessed == true then
+        return
+    end 
     self.synchProcessed = true
     print("Включаем таймер, время: ", date("%Y-%m-%d %H:%M:%S"))
     local thisObj = self;
@@ -79,7 +88,10 @@ function UserMessages:AwaitAllUserToSynch()
     frame:SetScript("OnUpdate", function(self, elapsed)
         self.elapsed = (self.elapsed or 0) + elapsed
         if self.elapsed >= 5 then
+            print("ТАймер сработал начинаем СИНХР")
             thisObj.StartSynch(thisObj)
+            -- Удаляем обработчик OnUpdate
+            self:SetScript("OnUpdate", nil)
         end
     end)
 end
@@ -109,13 +121,13 @@ function UserMessages:SendGetCountDeathRecordFromDate()
 
     local onlineFriends = GetOnlineFriends()
     -- Очищаем мапу перед синхронизацией
-    self.synchUserMap = {}
+    Obj_synchUserMap = {}
 
     if UserSettings.SyncWithFriends then
         
         for _, name in ipairs(onlineFriends) do
             -- Проставляет всем в списке значение в -1, потом будем проверять если не -1 значит пришёл результат
-            self.synchUserMap[name] = -1;
+            Obj_synchUserMap[name] = -1;
         end
     end
 
@@ -128,19 +140,19 @@ function UserMessages:SendGetCountDeathRecordFromDate()
         for i = 1, numMembers do
             -- Получаем информацию о каждом члене гильдии
             local name, rank, rankIndex, level, class, zone, note, officernote, online = GetGuildRosterInfo(i)
-            
+            print("name")
             -- Проверяем, онлайн ли игрок
             if online then
                 -- Проверяем что это не мы (чтобы не спрашивать у себя)
                 if name ~= playerName then
-                    self.synchUserMap[name] = -1
+                    Obj_synchUserMap[name] = -1
                 end
             end
         end      
     end
 
         -- Итерация по всей мапе и вывод ключей
-    for name, _ in pairs(self.synchUserMap) do
+    for name, _ in pairs(Obj_synchUserMap) do
         local lastRecordTime = UserSettings.dateTimeForSynch
         print("Справшиваем у " .. name .. " количество записей от " .. lastRecordTime);
         local returnCmd = "GET_COUNT_DEATH_RECORDS_FROM_DATE";
@@ -160,11 +172,14 @@ end
 
 function UserMessages:HandleGetCountDeathRecordFromDateResult(sender, messagedata)
     print("Получаем от " .. sender .. " количество записей: " .. messagedata);
-    self.synchUserMap[sender] = tonumber(messagedata);
+    Obj_synchUserMap[sender] = tonumber(messagedata);
+    print("self.synchProcessed == ", self.synchProcessed)
     if self.synchProcessed == false then
         self.AwaitAllUserToSynch(self)
     end
+    print("Проверяем прислали ли все пользователи?")
     if self.CheckReadyUserGetCountRecord(self) then
+        print("CheckReadyUserGetCountRecord == true")
         self.StartSynch(self)
     end
 end

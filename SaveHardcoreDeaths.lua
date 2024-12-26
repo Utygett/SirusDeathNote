@@ -227,3 +227,79 @@ function UpdateMinimapButtonPosition()
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- local f = CreateFrame("Frame")
+-- local playerInitialPosition = {} -- Таблица для хранения начальной позиции игрока
+-- local maxDistance = 30 -- Максимальное расстояние, на котором бой может прекратиться
+
+-- -- Функция для вычисления расстояния между двумя точками
+-- local function GetDistance(x1, y1, x2, y2)
+--     if not (x1 and y1 and x2 and y2) then return 0 end
+--     return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+-- end
+
+-- -- Функция для фиксации начальной позиции игрока
+-- local function RecordPlayerInitialPosition()
+--     local x, y = GetPlayerMapPosition("player")
+--     if x == 0 and y == 0 then
+--         print("Координаты игрока недоступны.")
+--         return
+--     end
+
+--     playerInitialPosition = { x = x, y = y }
+--     print("Сохранены начальные координаты игрока:", x, y)
+-- end
+
+-- -- Функция для проверки текущей позиции игрока
+-- local function CheckPlayerPosition()
+--     local x, y = GetPlayerMapPosition("player")
+--     if x == 0 and y == 0 then
+--         print("Координаты игрока недоступны.")
+--         return
+--     end
+
+--     if playerInitialPosition.x and playerInitialPosition.y then
+--         local distance = GetDistance(playerInitialPosition.x, playerInitialPosition.y, x, y)
+
+--         if distance > maxDistance then
+--             print("Вы слишком далеко от начальной позиции! Расстояние:", distance)
+--         end
+--     end
+-- end
+
+-- -- События
+-- f:RegisterEvent("PLAYER_REGEN_DISABLED") -- Бой начался
+-- f:RegisterEvent("PLAYER_REGEN_ENABLED") -- Бой закончился
+-- f:RegisterEvent("PLAYER_POSITION_CHANGED") -- Для проверки позиции
+-- f:SetScript("OnEvent", function(self, event, ...)
+--     if event == "PLAYER_REGEN_DISABLED" then
+--         -- Сохраняем начальную позицию, когда начинается бой
+--         RecordPlayerInitialPosition()
+--     elseif event == "PLAYER_REGEN_ENABLED" then
+--         -- Сбрасываем данные, когда бой заканчивается
+--         playerInitialPosition = {}
+--     elseif event == "PLAYER_POSITION_CHANGED" then
+--         -- Проверяем расстояние
+--         CheckPlayerPosition()
+--     end
+-- end)

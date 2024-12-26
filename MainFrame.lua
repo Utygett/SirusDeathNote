@@ -31,7 +31,6 @@ end
 local function initializeDropdown(self, level)
     addDropdownMenu(self, "Фильтр по имени", "name", "Фильтр: Имя");
     addDropdownMenu(self, "Фильтр по классу", "class", "Фильтр: Класс");
-    addDropdownMenu(self, "Фильтр по фракции", "fraction", "Фильтр: Фракция");
     addDropdownMenu(self, "Фильтр по расе", "race", "Фильтр: Раса");
     addDropdownMenu(self, "Фильтр по уровню", "level", "Фильтр: Уровень");
     addDropdownMenu(self, "Фильтр по локации", "zone", "Фильтр: Локация");
@@ -43,7 +42,7 @@ end
 -- Конструктор класса
 function UiMainFramne:new(parsedDeathList)
     local obj = setmetatable({}, UiMainFramne)
-    obj.frame = CreteMainFrameUi("MainFrame", 1050, 450, "MEDIUM", "Тетрадь смерти")
+    obj.frame = CreteMainFrameUi("MainFrame", 970, 450, "MEDIUM", "Тетрадь смерти")
     obj.data = parsedDeathList
     obj.parsedDeathList = parsedDeathList
 
@@ -51,8 +50,8 @@ function UiMainFramne:new(parsedDeathList)
     
     -- Заголовки таблицы
     -- name, class, fraction, race, level, zone, unknowValue, killerName, killerLevel, deathTime)
-    obj.headers =     {"Имя", "Класс", "Фракция","Раса", "lvl", "Локация", "Кто убил", "lvl уб..", "Время смерти"}
-    obj.headersSize = {85,       95  ,    70,      75,     30,     130,        320,         50,              120}
+    obj.headers =     {"Имя", "Класс","Раса", "lvl", "Локация", "Кто убил", "lvl уб..", "Время смерти"}
+    obj.headersSize = {85,       95  ,  75,     30,     130,        320,         50,              120}
     obj.sortColumn = nil
     obj.sortAscending = true
     obj.headerFrames = {}
@@ -61,7 +60,7 @@ function UiMainFramne:new(parsedDeathList)
 
         -- Создание ScrollFrame для прокрутки
     obj.scrollFrame = CreateFrame("ScrollFrame", nil, obj.frame, "UIPanelScrollFrameTemplate")
-    obj.scrollFrame:SetSize(1000, 350)
+    obj.scrollFrame:SetSize(920, 350)
     obj.scrollFrame:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 10, -80)
 
     obj.scrollChild = CreateFrame("Frame") -- Контейнер для содержимого
@@ -92,18 +91,16 @@ function UiMainFramne:new(parsedDeathList)
             elseif i == 2 then
                 obj.SortBy(obj, "class")
             elseif i == 3 then
-                obj.SortBy(obj, "fraction")
-            elseif i == 4 then
                 obj.SortBy(obj, "race")  
-            elseif i == 5 then
+            elseif i == 4 then
                 obj.SortBy(obj, "level")  
-            elseif i == 6 then
+            elseif i == 5 then
                 obj.SortBy(obj, "zone")  
-            elseif i == 7 then
+            elseif i == 6 then
                 obj.SortBy(obj, "killerName")  
-            elseif i == 8 then
+            elseif i == 7 then
                 obj.SortBy(obj, "killerLevel")  
-            elseif i == 9 then
+            elseif i == 8 then
                 obj.SortBy(obj, "deathTime")  
             end
         end)
@@ -226,26 +223,23 @@ function UiMainFramne:UpdateTable()
             self.scrollChild.rows[i].class = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
             self.scrollChild.rows[i].class:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 100, -rowHeight * (i - 1))
 
-            self.scrollChild.rows[i].fraction = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].fraction:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 195, -rowHeight * (i - 1))
-
             self.scrollChild.rows[i].race = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].race:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 250, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].race:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 180, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].level = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].level:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 330, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].level:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 260, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].zone = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].zone:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 360, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].zone:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 290, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].killerName = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].killerName:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 520, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].killerName:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 450, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].killerLevel = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].killerLevel:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 820, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].killerLevel:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 750, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].deathTime = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].deathTime:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 850, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].deathTime:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 780, -rowHeight * (i - 1))
         end
 
         self.scrollChild.rows[i].name:SetText(row.name)
@@ -254,9 +248,6 @@ function UiMainFramne:UpdateTable()
         self.scrollChild.rows[i].class:SetText(row.class)
         self.scrollChild.rows[i].class:SetTextColor(GetTextRGBColorFromClassName(row.class))
         self.scrollChild.rows[i].class:Show()    
-
-        self.scrollChild.rows[i].fraction:SetText(row.fraction)
-        self.scrollChild.rows[i].fraction:Show()
 
         self.scrollChild.rows[i].race:SetText(row.race)
         self.scrollChild.rows[i].race:Show()
