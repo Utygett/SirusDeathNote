@@ -78,6 +78,15 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         FrameUi.InitSettings(FrameUi)
         -- Вызов функции создания значка
         CreateCircularMinimapButton()
+        -- Пример использования:
+        -- local records = GenerateFakeRecords()
+
+        -- -- Вывод первых 10 записей для проверки
+        -- for i = 1, #records do
+        --     local parsedDeath = Death:ParseHardcoreDeath(records[i])
+        --     table.insert(parsedDeathList, parsedDeath)
+        --     AddToMap(DeathListSaved, records[i])
+        -- end
     elseif event == "PLAYER_LOGOUT" then
         SaveEvents()
     elseif event == "CHAT_MSG_ADDON" and prefix == "ASMSG_HARDCORE_DEATH" then
@@ -141,6 +150,64 @@ SlashCmdList["MYTESTADDON"] = function(msg)
         print("Используйте команды: /shd show")
     end
 end
+
+
+
+
+
+
+
+
+function GenerateFakeRecords()
+    local fakeRecords = {}
+    local locations = { "Нордерон", "Серебряный бор", "Нагорье Арати", "Тысяча Игл", "Дикие Чащобы" }
+    local killers = { "Укрощенный медведь Амани", "Гнилобрюх", "Погромщик из Братства Справедливости", "Заразная крыса", "Силитид-захватчик" }
+    local nicknames = { "Undeadronin", "Luchadore", "Flaxo", "Kittalini", "Ухиллянт", "Ябирюзовый", "Всердцетьма", "Инсигас", "Светозор", "Мракобес" }
+
+    for i = 1, 50000 do
+        -- Генерация случайных данных
+        local name = nicknames[math.random(1, #nicknames)] .. tostring(i) -- Уникальный ник
+        local level = math.random(1, 60) -- Уровень игрока
+        local subLevel = math.random(0, 5) -- Подуровень (рандом)
+        local mapId = math.random(1, 10) -- Карта
+        local zoneLevel = math.random(1, 50) -- Уровень локации
+        local location = locations[math.random(1, #locations)] -- Случайная локация
+        local killer = killers[math.random(1, #killers)] -- Случайный убийца
+        local killerLevel = math.random(1, 60) -- Уровень убийцы
+        local timestamp = string.format("2000-%02d-%02d %02d:%02d:%02d", math.random(1, 12), math.random(1, 28), math.random(0, 23), math.random(0, 59), math.random(0, 59)) -- Дата и время
+
+        -- Формирование строки
+        local record = string.format("%s:%d:%d:%d:%d:%s:%d:%s:%d#%s", name, level, subLevel, mapId, zoneLevel, location, math.random(1, 10), killer, killerLevel, timestamp)
+
+        -- Добавляем запись в массив
+        table.insert(fakeRecords, record)
+    end
+
+    -- Возвращаем массив записей
+    return fakeRecords
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- Создаем переменные для управления кнопкой
 local minimapButton = nil
 local radius = 80 -- Радиус движения кнопки (зависит от размера миникарты)

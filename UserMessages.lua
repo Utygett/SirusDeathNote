@@ -88,7 +88,6 @@ function UserMessages:AwaitAllUserToSynch()
     frame:SetScript("OnUpdate", function(self, elapsed)
         self.elapsed = (self.elapsed or 0) + elapsed
         if self.elapsed >= 5 then
-            print("ТАймер сработал начинаем СИНХР")
             thisObj.StartSynch(thisObj)
             -- Удаляем обработчик OnUpdate
             self:SetScript("OnUpdate", nil)
@@ -186,7 +185,9 @@ end
 
 function UserMessages:HandleSendDeathRecord(sender, messagedata, parsedDeathList)
     self.synchNumberOfRecordsReceived = self.synchNumberOfRecordsReceived + 1
-    print("Получена запись №", self.synchNumberOfRecordsReceived)
+    if self.synchNumberOfRecordsReceived % 1000 == 0 then
+        print("Получена запись №" .. tostring(self.synchNumberOfRecordsReceived) .. " из " .. tostring(self.synchCountRecord))
+    end
     -- print("Получена запись:", messagedata, " от игрока: ", sender);
     AddToMap(DeathListSaved, messagedata)
     local parsedDeath = Death:ParseHardcoreDeath(messagedata)
@@ -199,12 +200,53 @@ function UserMessages:HandleSendDeathRecord(sender, messagedata, parsedDeathList
     end
 end
 
+-- function UserMessages:HandleGetDeathRecordsFromDateResult(sender, messagedata)
+--     local records = GetRecordsSince(messagedata)
+--     for _, record in ipairs(records) do
+--         local returnCmd = "SEND_DEATH_RECORD";
+--         local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. record
+--         SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", sender)
+--     end
+-- end
 
 function UserMessages:HandleGetDeathRecordsFromDateResult(sender, messagedata)
     local records = GetRecordsSince(messagedata)
+    local queue = {} -- Очередь для сообщений
+    local maxMessagesPerSecond = 300
+    local delay = 1 / maxMessagesPerSecond
+    local addonName = self.addonName
+
+    -- Заполняем очередь
     for _, record in ipairs(records) do
-        local returnCmd = "SEND_DEATH_RECORD";
-        local messageToReturn = UnitName("player") .. "@"..returnCmd .."@" .. record
-        SendMessageToPlayerOnSameServer(self.addonName, messageToReturn, "WHISPER", sender)
+        local returnCmd = "SEND_DEATH_RECORD"
+        local messageToReturn = UnitName("player") .. "@" .. returnCmd .. "@" .. record
+        table.insert(queue, messageToReturn)
     end
+
+    -- Таймер-фрейм
+    local timerFrame = CreateFrame("Frame")
+    timerFrame.timeElapsed = 0
+    print("Размер очереди: ", #queue)
+    timerFrame:SetScript("OnUpdate", function(self, elapsed)
+        self.timeElapsed = self.timeElapsed + elapsed
+
+        -- Если прошло достаточно времени, отправляем сообщение
+        if self.timeElapsed >= delay and #queue > 0 then
+            for i = 1, 5, 1 do
+                local messageToSend = table.remove(queue, 1)
+                SendMessageToPlayerOnSameServer(addonName, messageToSend, "WHISPER", sender)
+                -- print("отправка сообщениея: ",  messageToSend, sender)
+                -- Сброс таймера    
+            end
+            self.timeElapsed = 0
+        end
+
+        -- Удаляем фрейм, если очередь пуста
+        if #queue == 0 then
+            self:SetScript("OnUpdate", nil)
+            self:Hide()
+        end
+    end)
+
+    timerFrame:Show()
 end

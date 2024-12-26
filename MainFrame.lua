@@ -138,7 +138,7 @@ function UiMainFramne:new(parsedDeathList)
         obj.userMSG.SendGetCountDeathRecordFromDate(obj.userMSG)
     end)
 
-    -- Создаем EditBox
+    -- Создаем EditBox для отображения количества записей
     obj.countShowRecBox = CreateFrame("EditBox", nil, obj.frame)
     obj.countShowRecBox:SetSize(50, 20)
     obj.countShowRecBox:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 565, -28)
@@ -162,9 +162,19 @@ function UiMainFramne:new(parsedDeathList)
     countRecordLabel:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 350, -32)
     countRecordLabel:SetText("Количество отображаемых записей")
 
+
+    obj.numRecordLabel = obj.frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    obj.numRecordLabel:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 650, -32)
+    obj.numRecordLabel:SetText("Количество записей : 0")
+
     return obj
 end
 
+function UiMainFramne:updateLabelNumRecords(numRecords)
+    print("Количество записей : ", numRecords)
+    local str = "Количество записей : " .. tostring(numRecords)
+    self.numRecordLabel:SetText(str)
+end
 
 -- Функция для обработки сортировки
 function UiMainFramne:SortBy(column)
@@ -211,7 +221,7 @@ function UiMainFramne:UpdateTable()
     end
     local totalHeight = rowCount * rowHeight
     self.scrollChild:SetHeight(totalHeight)
-
+    self.updateLabelNumRecords(self, #self.data)
     -- Создание строк таблицы
     for i, row in ipairs(self.data) do
         if not self.scrollChild.rows[i] then
