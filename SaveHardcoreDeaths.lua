@@ -39,9 +39,9 @@ end
 local parsedDeathList = {}
 -- Загрузка данных
 local function LoadSavedEvents()
-        -- if CheckUi() then
-        --     return
-        -- end
+        if CheckUi() then
+            return
+        end
         for key, record in pairs(DeathListSaved) do
             local parsedDeath = Death:ParseHardcoreDeath(record)
             if parsedDeath.name == nil then
