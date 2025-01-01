@@ -1,5 +1,7 @@
 # SirusDeathNote
 Addon for wow sirus hardcore
+Ссылка на архив последней версии https://github.com/Utygett/SirusDeathNote/archive/refs/heads/ZBT_Release_1.0.zip
+![image](https://github.com/user-attachments/assets/d7e0ecb0-5abd-441e-bf0a-f8b382332df5)
 
 # Планы на развитие 
 1) Сбор и отображение данных.
