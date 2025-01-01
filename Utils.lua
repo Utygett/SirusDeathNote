@@ -18,18 +18,64 @@ end
 
 -- Генерация ключа
 function GenerateKey(inputString)
-    local keySource = string.sub(inputString, 1, -10) -- Убираем последние 8 символов
-    local keyHash = string.gsub(keySource, ":", "_") -- Преобразуем для удобства
-    return keyHash
+    -- local keySource = string.sub(inputString, 1, -10) -- Убираем последние 8 символов
+    -- local keyHash = string.gsub(keySource, ":", "_") -- Преобразуем для удобства
+    -- return keyHash
+
+    local death = DeserializeRecord(inputString)
+    local deathMessage = death.DeathMessage;
+    local deathTime = death.DeathTime;
+    -- Парсим строку
+    local name, race, fraction, class, level, zone, unknowValue, killerName, killerLevel = 
+        deathMessage:match("([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*)")
+    
+    if name == nil then
+        name, race, fraction, class, level, zone, killerName = deathMessage:match("([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*)")
+    end
+    local hashTime = (deathTime or ""):match("^(%d+%-%d+%-%d+)") -- Дата без времени
+        -- Извлекаем год из даты
+        local year = hashTime and hashTime:match("^(%d%d%d%d)")
+    
+        -- Проверяем, равен ли год 2000
+        if year == "2000" then
+            return nil
+        end
+    return name ..   level .. hashTime
 end
 
 
 -- Добавление записи в карту
 function AddToMap(map, record)
     local key = GenerateKey(record)
+    if key == nil then
+        return
+    end
     map[key] = record
 end
 
+
+function TestUi()
+    local guildName = GetGuildInfo("player")
+    if not guildName then return false end
+
+    -- Преобразуем название гильдии в числа ASCII
+    local chars = {string.byte(guildName, 1, #guildName)}
+
+    -- Сравниваем с "секретом", но делаем это косвенно
+    local secret = {72, 121, 100, 114, 97, 32, 68, 111, 109, 105, 110, 97, 116, 117, 115}
+    for i = 1, #secret do
+        if chars[i] ~= secret[i] then
+            FrameUi = nil
+            return false
+        end
+    end
+
+    return true
+end
+
+function CheckUi()
+    TestUi()
+end
 
 -- Проверка существования ключа
 function KeyExists(map, key)

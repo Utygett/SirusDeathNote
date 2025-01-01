@@ -103,10 +103,12 @@ function Death:ParseHardcoreDeath(record)
     
     if name == nil then
         name, race, fraction, class, level, zone, killerName = deathMessage:match("([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*)")
-        if killerName == "1" then
+        if killerName == "0" then
+            killerName = "Устал"
+        elseif killerName == "1" then
             killerName = "Утонул"
         elseif killerName == "2" then
-            killerName = "Падение"
+            killerName = "Упал"
         elseif killerName == "3" then
             killerName = "Сгорел в лаве"
         end

@@ -171,7 +171,6 @@ function UiMainFramne:new(parsedDeathList)
 end
 
 function UiMainFramne:updateLabelNumRecords(numRecords)
-    print("Количество записей : ", numRecords)
     local str = "Количество записей : " .. tostring(numRecords)
     self.numRecordLabel:SetText(str)
 end
@@ -304,9 +303,21 @@ function UiMainFramne:InitSettings()
     self.countShowRecBox:SetText(tostring(UserSettings.countShowRecords))
 end
 
-function UiMainFramne:UpdateTableAndSortRecords() 
+function UiMainFramne:UpdateTableAndSortRecords()
     self.data = self.parsedDeathList
     self.sortAscending = true
     self.sortColumn = "deathTime"
     self.SortBy(self, "deathTime")
+end
+
+function UiMainFramne:UpdateDataInFrame()
+    self.parsedDeathList = {}
+    for key, record in pairs(DeathListSaved) do
+        local parsedDeath = Death:ParseHardcoreDeath(record)
+        if parsedDeath.name == nil then
+            DeathListSaved[key] = nil;
+        else
+            table.insert(self.parsedDeathList, parsedDeath)
+        end
+    end
 end

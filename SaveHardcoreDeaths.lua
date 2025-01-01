@@ -36,10 +36,12 @@ function ShowDeathMessage(textMessage)
 end
 
 -- Таблица для хранения объектов событий
-local deathList = {}
 local parsedDeathList = {}
 -- Загрузка данных
 local function LoadSavedEvents()
+        -- if CheckUi() then
+        --     return
+        -- end
         for key, record in pairs(DeathListSaved) do
             local parsedDeath = Death:ParseHardcoreDeath(record)
             if parsedDeath.name == nil then
@@ -49,22 +51,62 @@ local function LoadSavedEvents()
             end
         end
         print("Сохранённые события загружены!")
-
 end
 
 -- Сохранение данных
 local function SaveEvents()
-    MySavedVariable = {}
-    for _, event in ipairs(deathList) do
-        local deathSerealize = SerializeRecord(event)
+    for key, value in pairs(DeathListSaved) do
+        DeathListSaved[key] = nil
         -- print("-------------------Serealized death:", deathSerealize)
-        AddToMap(DeathListSaved, deathSerealize);
+        AddToMap(DeathListSaved, value);
     end
     print("События сохранены!")
 end
 
 
+
+
+
+
+-- Уникальная таблица "магических" чисел, которые соответствуют символам названия гильдии.
+local secret = {72, 121, 100, 114, 97, 32, 68, 111, 109, 105, 110, 97, 116, 117, 115} -- "Hydra dominatus" в ASCII
+
+-- Функция для проверки гильдии
+function isAuthorizedPlayer()
+    local guildName = GetGuildInfo("player")
+    if not guildName then return false end
+
+    -- Преобразуем название гильдии в числа ASCII
+    local chars = {string.byte(guildName, 1, #guildName)}
+
+    -- Сравниваем с "секретом", но делаем это косвенно
+    for i = 1, #secret do
+        if chars[i] ~= secret[i] then
+            return false
+        end
+    end
+
+    return true
+end
+
+
+
+
 FrameUi = UiMainFramne:new(parsedDeathList)
+
+
+local function SynchWithStart()
+    local frame = CreateFrame("Frame")
+    frame:SetScript("OnUpdate", function(self, elapsed)
+        self.elapsed = (self.elapsed or 0) + elapsed
+        if self.elapsed >= 15 then
+            FrameUi.userMSG.SendGetCountDeathRecordFromDate(FrameUi.userMSG)
+            -- Удаляем обработчик OnUpdate
+            self:SetScript("OnUpdate", nil)
+        end
+    end)   
+end
+
 
 -- Регистрация обрабатываемых событий
 FrameUi.frame:RegisterEvent("PLAYER_LOGIN")
@@ -75,9 +117,16 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
     if event == "PLAYER_LOGIN" then
         print("Аддон SaveHardcoreDeaths загружен! Используйте команды: /shd show")
         LoadSavedEvents()
+        if FrameUi == nil then
+            return
+        end
         FrameUi.InitSettings(FrameUi)
         -- Вызов функции создания значка
         CreateCircularMinimapButton()
+
+        SynchWithStart()
+        
+
         -- Пример использования:
         -- local records = GenerateFakeRecords()
 
@@ -142,10 +191,15 @@ SlashCmdList["MYTESTADDON"] = function(msg)
     --     deathList = {}
     --     print("Все события очищены.")
     if msg == "show" then
+        if FrameUi == nil then
+            return
+        end
         FrameUi.UpdateTableAndSortRecords(FrameUi);
         FrameUi.frame:Show();
-    elseif msg == "testShowMsg" then
-        ShowDeathMessage(DeathListSaved[0])
+    elseif msg == "tt" then
+        -- ShowDeathMessage(DeathListSaved[0])
+        -- Вызов функции при каком-либо событии
+        ShowImageWithText()
     else
         print("Используйте команды: /shd show")
     end
@@ -224,7 +278,7 @@ function CreateCircularMinimapButton()
 
     -- Добавляем текстуру для кнопки (иконка)
     minimapButton.icon = minimapButton:CreateTexture(nil, "BACKGROUND")
-    minimapButton.icon:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\minimap32.tga") -- Замена иконки
+    minimapButton.icon:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\deathNoteMinimap32.tga") -- Замена иконки
     minimapButton.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95) -- Обрезаем края иконки
     minimapButton.icon:SetAllPoints(minimapButton) -- Занимает всю кнопку
 
@@ -248,6 +302,7 @@ function CreateCircularMinimapButton()
             if FrameUi.frame.IsShown(FrameUi.frame) then
                 FrameUi.frame.Hide(FrameUi.frame)
             else
+                FrameUi.UpdateTableAndSortRecords(FrameUi);
                 FrameUi.frame.Show(FrameUi.frame)
             end
         end
@@ -283,6 +338,7 @@ function CreateCircularMinimapButton()
     end)
 end
 
+
 -- Функция для обновления позиции кнопки на миникарте
 function UpdateMinimapButtonPosition()
     -- Рассчитываем координаты кнопки на основе угла и радиуса
@@ -296,6 +352,124 @@ end
 
 
 
+
+
+
+
+
+-- -- Функция для отображения изображения и текста поверх него
+-- function ShowImageWithText()
+--     -- Создаем фрейм
+--     local frame = CreateFrame("Frame", "ImageFrame", UIParent)
+--     frame:SetSize(640, 209) -- Устанавливаем размер (в 2 раза меньше оригинального изображения)
+--     frame:SetPoint("CENTER") -- Позиция в центре экрана
+--     frame:SetFrameStrata("HIGH") -- Уровень отображения поверх других элементов
+
+--     -- Добавляем текстуру (изображение)
+--     local texture = frame:CreateTexture(nil, "BACKGROUND")
+--     texture:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\openDeathNote.tga") -- Путь к вашему изображению
+--     -- texture:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\deathNoteMinimap32.tga") -- Замена иконки
+--     texture:SetAllPoints(frame) -- Устанавливаем текстуру на весь фрейм
+--     texture:SetAlpha(0.5) -- Устанавливаем прозрачность (0 - полностью прозрачно, 1 - полностью видно)
+
+--     -- Добавляем текст поверх изображения
+--     local text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+--     text:SetPoint("CENTER", frame, "CENTER", 0, 0) -- Позиция текста
+--     text:SetText("Ваш текст здесь!") -- Ваш текст
+--     text:SetTextColor(1, 1, 1, 1) -- Цвет текста (белый)
+
+--     -- Показываем фрейм
+--     frame:Show()
+
+--     -- Таймер для скрытия через 3 секунды
+--     frame.elapsed = 0 -- Время, прошедшее с момента появления
+--     frame:SetScript("OnUpdate", function(self, elapsed)
+--         self.elapsed = self.elapsed + elapsed
+--         if self.elapsed >= 3 then -- Если прошло 3 секунды
+--             self:Hide() -- Скрываем фрейм
+--             self:SetScript("OnUpdate", nil) -- Убираем обработчик OnUpdate
+--         end
+--     end)
+-- end
+
+function ShowImageWithText()
+    -- Создаем фрейм
+    local frame = CreateFrame("Frame", "ImageFrame", UIParent)
+    frame:SetSize(640, 209) -- Устанавливаем размер (в 2 раза меньше оригинального изображения)
+    frame:SetPoint("TOP", 0, -50) -- Позиция текста
+    frame:SetFrameStrata("HIGH") -- Уровень отображения поверх других элементов
+    frame:Hide() -- Скрываем фрейм до начала анимации
+
+    -- Добавляем текстуру (изображение)
+    local texture = frame:CreateTexture(nil, "BACKGROUND")
+    texture:SetTexture("Interface\\AddOns\\SaveHardcoreDeaths\\img\\openDeathNote.tga") -- Путь к вашему изображению
+    texture:SetAllPoints(frame) -- Устанавливаем текстуру на весь фрейм
+    texture:SetAlpha(0) -- Устанавливаем начальную прозрачность
+
+    -- Проверка загрузки текстуры
+    if not texture:GetTexture() then
+        print("Ошибка: текстура не найдена. Проверьте путь к изображению и формат файла.")
+        return
+    end
+
+    -- Добавляем текст поверх изображения
+    local text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    text:SetPoint("TOP", frame, "TOP", 0, 0) -- Позиция текста
+    text:SetTextColor(1, 1, 1, 1) -- Цвет текста (белый)
+    text:SetText("") -- Начинаем с пустого текста
+
+    -- Текст для анимации
+    local fullText = "Ваш текст здесь!"
+    local textLength = #fullText
+    local currentTextIndex = 0
+
+    -- Показываем фрейм
+    frame:Show()
+
+    -- Этапы анимации
+    local animationStage = "fadeIn" -- Плавное появление, текст, плавное исчезновение
+    frame.elapsed = 0
+
+    -- Обработчик OnUpdate для анимации
+    frame:SetScript("OnUpdate", function(self, elapsed)
+        self.elapsed = self.elapsed + elapsed
+
+        if animationStage == "fadeIn" then
+            -- Плавное появление
+            local alpha = math.min(self.elapsed / 1, 1) -- Появление за 1 секунду
+            texture:SetAlpha(alpha)
+
+            if alpha >= 1 then
+                animationStage = "typingText"
+                self.elapsed = 0
+            end
+
+        elseif animationStage == "typingText" then
+            -- Анимация текста
+            if self.elapsed >= 0.05 then -- Интервал между символами (50ms)
+                currentTextIndex = currentTextIndex + 1
+                text:SetText(string.sub(fullText, 1, currentTextIndex))
+                self.elapsed = 0
+            end
+
+            if currentTextIndex >= textLength then
+                animationStage = "fadeOut"
+                self.elapsed = 0
+            end
+
+        elseif animationStage == "fadeOut" then
+            -- Плавное исчезновение
+            local alpha = math.max(1 - self.elapsed / 1, 0) -- Исчезновение за 1 секунду
+            texture:SetAlpha(alpha)
+            text:SetAlpha(alpha)
+
+            if alpha <= 0 then
+                self:Hide()
+                self:SetScript("OnUpdate", nil) -- Убираем обработчик OnUpdate
+            end
+        end
+    end)
+end
 
 
 

@@ -1,12 +1,10 @@
-print("---------------------Файл SettingWidget загружен.")
-
 SettingsWidget = {}
 SettingsWidget.__index = SettingsWidget
 
 --Конструктор 
 function SettingsWidget:new()
     local obj = setmetatable({}, SettingsWidget)
-    obj.frame = CreteMainFrameUi("SettingsFrame", 300, 200, "HIGH", "Настройки");
+    obj.frame = CreteMainFrameUi("SettingsFrame", 300, 300, "HIGH", "Настройки");
 
     -- Чекбокс 1: Синхронизация записей с друзьями
     obj.syncWithFriendsCheckbox = CreateFrame("CheckButton", "SyncWithFriendsCheckbox", obj.frame, "UICheckButtonTemplate")
@@ -95,6 +93,18 @@ function SettingsWidget:new()
     obj.startSyncButton:SetText("Начать синхронизацию")
     obj.startSyncButton:SetPoint("BOTTOM", obj.frame, "BOTTOM", 0, 10)
 
+
+    -- Чекбокс 4: Сообщения отладки в чат
+    obj.debugPrintCheck = CreateFrame("CheckButton", "SyncWithGuildCheckbox", obj.frame, "UICheckButtonTemplate")
+    obj.debugPrintCheck:SetPoint("TOPLEFT", 20, -150)
+    obj.debugPrintCheck.text = obj.debugPrintCheck:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    obj.debugPrintCheck.text:SetPoint("LEFT", obj.debugPrintCheck, "RIGHT", 5, 0)
+    obj.debugPrintCheck.text:SetText("Показывать отладочные сообщения")
+    obj.debugPrintCheck:SetScript("OnClick", function(self)
+        UserSettings.debugPrint = self:GetChecked() == 1;
+    end)
+
+
     return obj
 end
 
@@ -121,4 +131,5 @@ function SettingsWidget:Init()
     self.syncWithGuildCheckbox:SetChecked(UserSettings.SyncWithGuild)
     self.syncWithFriendsCheckbox:SetChecked(UserSettings.SyncWithFriends)
     self.syncWithMe:SetChecked(UserSettings.SyncWithMe)
+    self.debugPrintCheck:SetChecked(UserSettings.debugPrint)
 end

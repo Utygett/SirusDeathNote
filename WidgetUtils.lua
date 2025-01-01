@@ -18,3 +18,9 @@ function CreteMainFrameUi(frameName, width, height, frameStrate, title)
     frame.title:SetText(title)
     return frame
 end
+
+function DebugPrint(msg)
+    if UserSettings.debugPrint == true then
+        print(msg)
+    end
+end
