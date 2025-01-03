@@ -142,7 +142,7 @@ FrameUi.frame:SetScript("OnEvent", function(_, event, prefix, message)
         local death, parsedDeath = Death:new(message, date("%Y-%m-%d %H:%M:%S"))
         if death ~= nil then
             AddToMap(DeathListSaved, death)
-            table.insert(parsedDeathList, parsedDeath)    
+            table.insert(FrameUi.parsedDeathList, parsedDeath)    
         end
     elseif event == "CHAT_MSG_ADDON"  and prefix == "MyAddon" then      -- ///вынести в отдельную функцию
         -- print("Аддон ивент: ", event)
@@ -475,72 +475,408 @@ end
 
 
 
+-- -- Определение аддона
+-- local addonName, addonTable = ...
+-- local XPTracker = CreateFrame("Frame", "XPTrackerFrame", UIParent)
 
+-- -- Переменные для отслеживания
+-- local sessionXP = 0
+-- local sessionKills = 0
+-- local sessionStartTime = time()
+-- local lastXP = UnitXP("player")
 
+-- -- Создание фрейма для отображения информации
+-- XPTracker:SetWidth(200)
+-- XPTracker:SetHeight(130)
+-- XPTracker:SetPoint("CENTER", UIParent, "CENTER")
+-- XPTracker:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",})
+-- XPTracker:SetBackdropColor(0, 0, 0, 0.8)
+-- XPTracker:EnableMouse(true)
+-- XPTracker:SetMovable(true)
+-- XPTracker:RegisterForDrag("LeftButton")
+-- XPTracker:SetScript("OnDragStart", XPTracker.StartMoving)
+-- XPTracker:SetScript("OnDragStop", XPTracker.StopMovingOrSizing)
 
+-- -- Текстовые элементы
+-- local text = XPTracker:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+-- text:SetPoint("TOPLEFT", 10, -10)
+-- text:SetJustifyH("LEFT")
+-- text:SetText("Загрузка...")
 
-
-
-
-
-
-
-
-
-
-
--- local f = CreateFrame("Frame")
--- local playerInitialPosition = {} -- Таблица для хранения начальной позиции игрока
--- local maxDistance = 30 -- Максимальное расстояние, на котором бой может прекратиться
-
--- -- Функция для вычисления расстояния между двумя точками
--- local function GetDistance(x1, y1, x2, y2)
---     if not (x1 and y1 and x2 and y2) then return 0 end
---     return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
--- end
-
--- -- Функция для фиксации начальной позиции игрока
--- local function RecordPlayerInitialPosition()
---     local x, y = GetPlayerMapPosition("player")
---     if x == 0 and y == 0 then
---         print("Координаты игрока недоступны.")
---         return
+-- -- Функция для обновления текста
+-- local function UpdateText()
+--     local currentXP = UnitXP("player")
+--     local maxXP = UnitXPMax("player")
+--     local gainedXP = currentXP - lastXP
+--     if gainedXP > 0 then
+--         sessionXP = sessionXP + gainedXP
+--         lastXP = currentXP
 --     end
 
---     playerInitialPosition = { x = x, y = y }
---     print("Сохранены начальные координаты игрока:", x, y)
+--     local elapsedTime = time() - sessionStartTime
+--     local xpPerHour = sessionXP / (elapsedTime / 3600)
+--     local remainingXP = maxXP - currentXP
+--     local timeToLevel = remainingXP / (xpPerHour / 3600)
+--     local minutes = math.floor(elapsedTime / 60)
+--     local seconds = elapsedTime % 60
+
+--     text:SetText(string.format(
+--         "Сессия:\nВремя сессии: %d мин %d сек\nПолучено опыта: %.0f\nОпыт в час: %.0f\nДо уровня: %.1f мин\nУбито мобов: %d",
+--         minutes, seconds, sessionXP, xpPerHour, timeToLevel / 60, sessionKills
+--     ))
 -- end
 
--- -- Функция для проверки текущей позиции игрока
--- local function CheckPlayerPosition()
---     local x, y = GetPlayerMapPosition("player")
---     if x == 0 and y == 0 then
---         print("Координаты игрока недоступны.")
---         return
+-- -- Сброс данных сессии
+-- local function ResetSession()
+--     sessionXP = 0
+--     sessionKills = 0
+--     sessionStartTime = time()
+--     lastXP = UnitXP("player")
+--     UpdateText()
+-- end
+
+-- -- Кнопка сброса
+-- local resetButton = CreateFrame("Button", nil, XPTracker, "UIPanelButtonTemplate")
+-- resetButton:SetSize(80, 20)
+-- resetButton:SetPoint("BOTTOM", XPTracker, "BOTTOM", 0, 10)
+-- resetButton:SetText("Сброс")
+-- resetButton:SetScript("OnClick", ResetSession)
+
+-- -- Обработчик событий
+-- XPTracker:RegisterEvent("PLAYER_XP_UPDATE")
+-- XPTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+-- XPTracker:SetScript("OnEvent", function(self, event, ...)
+--     if event == "PLAYER_XP_UPDATE" then
+--         UpdateText()
+--     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
+--         arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
+--         -- print("COMBAT_LOG_EVENT_UNFILTERED", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+--         -- local _, subEvent, _, sourceGUID, _, _, _, destGUID, _, _, _, spellID = CombatLogGetCurrentEventInfo()
+--         if arg2 == "UNIT_DIED" then --and sourceGUID == UnitGUID("player") then
+--             sessionKills = sessionKills + 1
+--             UpdateText()
+--         end
+--     end
+-- end)
+
+-- -- Инициализация
+-- UpdateText()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- -- local f = CreateFrame("Frame")
+-- -- local playerInitialPosition = {} -- Таблица для хранения начальной позиции игрока
+-- -- local maxDistance = 30 -- Максимальное расстояние, на котором бой может прекратиться
+
+-- -- -- Функция для вычисления расстояния между двумя точками
+-- -- local function GetDistance(x1, y1, x2, y2)
+-- --     if not (x1 and y1 and x2 and y2) then return 0 end
+-- --     return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+-- -- end
+
+-- -- -- Функция для фиксации начальной позиции игрока
+-- -- local function RecordPlayerInitialPosition()
+-- --     local x, y = GetPlayerMapPosition("player")
+-- --     if x == 0 and y == 0 then
+-- --         print("Координаты игрока недоступны.")
+-- --         return
+-- --     end
+
+-- --     playerInitialPosition = { x = x, y = y }
+-- --     print("Сохранены начальные координаты игрока:", x, y)
+-- -- end
+
+-- -- -- Функция для проверки текущей позиции игрока
+-- -- local function CheckPlayerPosition()
+-- --     local x, y = GetPlayerMapPosition("player")
+-- --     if x == 0 and y == 0 then
+-- --         print("Координаты игрока недоступны.")
+-- --         return
+-- --     end
+
+-- --     if playerInitialPosition.x and playerInitialPosition.y then
+-- --         local distance = GetDistance(playerInitialPosition.x, playerInitialPosition.y, x, y)
+
+-- --         if distance > maxDistance then
+-- --             print("Вы слишком далеко от начальной позиции! Расстояние:", distance)
+-- --         end
+-- --     end
+-- -- end
+
+-- -- -- События
+-- -- f:RegisterEvent("PLAYER_REGEN_DISABLED") -- Бой начался
+-- -- f:RegisterEvent("PLAYER_REGEN_ENABLED") -- Бой закончился
+-- -- f:RegisterEvent("PLAYER_POSITION_CHANGED") -- Для проверки позиции
+-- -- f:SetScript("OnEvent", function(self, event, ...)
+-- --     if event == "PLAYER_REGEN_DISABLED" then
+-- --         -- Сохраняем начальную позицию, когда начинается бой
+-- --         RecordPlayerInitialPosition()
+-- --     elseif event == "PLAYER_REGEN_ENABLED" then
+-- --         -- Сбрасываем данные, когда бой заканчивается
+-- --         playerInitialPosition = {}
+-- --     elseif event == "PLAYER_POSITION_CHANGED" then
+-- --         -- Проверяем расстояние
+-- --         CheckPlayerPosition()
+-- --     end
+-- -- end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- local function AddCustomTextToFrame(frame, text)
+--     if not frame.customText then
+--         frame.customText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+--         frame.customText:SetPoint("BOTTOM", frame, "TOP", 0, 5)
+--     end
+--     frame.customText:SetText(text)
+-- end
+
+
+-- local function GetNameAndLevelFromFrame(frame)
+--     local mobName = nil
+--     local mobLevel = nil
+--     -- frame:SetAlpha(0)
+--     -- Перебираем регионы фрейма (FontString или Texture)
+--     for i = 1, frame:GetNumRegions() do
+--         -- print("frame:GetNumRegions(): ", i)
+--         local region = select(i, frame:GetRegions())
+--         -- print("region:GetObjectType: ", region:GetObjectType())
+        
+--         if region and region:IsObjectType("FontString") then
+--         --         for k, v in pairs(getmetatable(region).__index) do
+--         -- -- if  k == "GetText" then
+--         --     -- print("GET_TEXT:", child:GetText())
+--         --     print("Method:", k)
+--         -- -- end
+--         --     end
+--             -- print("StringHeight: ", region:GetStringHeight())
+--             local text = region:GetText()
+--             -- print("text: ", text)
+--             -- region:Hide()
+--             if text then
+--                 if i == 8 then
+--                     mobLevel = text
+--                 end
+--                 if i == 7 then
+--                     mobName = text
+--                 end
+
+--             end
+--         end
+
+
+--         if region and region:IsObjectType("Texture") then
+--             -- print("texture i: ", i)
+--             local texture = region:GetTexture()
+--             print("Found texture:", texture, "in frame:", frame:GetName() or "Unnamed Frame")
+--             -- region:SetAlpha(0)
+--             --  Interface\TargetingFrame\UI-TargetingFrame-BarFill
+
+--             --  Interface\TargetingFrame\UI-TargetingFrame-Flash
+--             -- if i == 1 then region:Hide() end
+--             -- Interface\Tooltips\Nameplate-Border
+--             if i == 2 then
+                
+--                 -- region:SetTexture("Interface\\Buttons\\WHITE8X8")
+--                 -- region:Hide()
+--             end -- Текстура фрейма
+--             -- Interface\Tooltips\Nameplate-Border
+--             -- if i == 3 then region:Hide() end
+--             -- Interface\Tooltips\Nameplate-CastBar-Shield
+--             -- if i == 4 then region:Hide() end
+--             -- Found texture: nil in frame: Unnamed Fram
+--             -- if i == 5 then region:Hide() end
+--             -- Interface\Tooltips\Nameplate-Glow
+--             -- if i == 6 then region:Hide() end
+--             -- Interface\TargetingFrame\UI-TargetingFrame-Skull
+--             -- if i == 9 then region:Hide() end
+--             -- Interface\TargetingFrame\UI-RaidTargetingIcons
+--             -- if i == 10 then region:Hide() end
+--             -- Interface\Tooltips\EliteNameplateIcon
+--             -- if i == 11 then region:Hide() end
+            
+--         end
+
+
+--         if mobName and mobName ~= "" and mobLevel then
+--             -- AddCustomTextToFrame(frame, mobName .. " " .. mobLevel)
+--         end
 --     end
 
---     if playerInitialPosition.x and playerInitialPosition.y then
---         local distance = GetDistance(playerInitialPosition.x, playerInitialPosition.y, x, y)
+--     return mobName, mobLevel
+-- end
 
---         if distance > maxDistance then
---             print("Вы слишком далеко от начальной позиции! Расстояние:", distance)
+-- -- Функция для вывода информации о фрейме
+-- local function InspectFrame(frame)
+--     if not frame then return end
+--     -- frame:Hide()
+--     local mobName, mobLevel = GetNameAndLevelFromFrame(frame)
+--     if mobName then
+--         -- print("Found mob:", mobName, "Level:", mobLevel or "Unknown")
+--     end
+--     -- print("-------------------------------------------------------------------------------")
+--     -- print("-------------------------------------------------------------------------------")
+--     -- print("-------------------------------------------------------------------------------")
+--     -- print("Inspecting frame:", frame:GetName() or "Unnamed")
+--     -- print("Frame type:", frame:GetObjectType())
+--     -- print("Width:", frame:GetWidth(), "Height:", frame:GetHeight())
+--     -- print("Visible:", frame:IsVisible())
+--     -- print("-------------------------------------------------------------------------------")
+--     -- -- Перебираем все методы
+--     -- for k, v in pairs(getmetatable(frame).__index) do
+--     --     -- if  k == "GetText" then
+--     --         -- print("GET_TEXT:", child:GetText())
+--     --         print("Method:", k)
+--     --     -- end
+--     -- end
+--     -- print("-------------------------------------------------------------------------------")
+--     -- print("-------------------------------------------------------------------------------")
+--     -- print("-------------------------------------------------------------------------------")
+-- end
+
+
+
+
+
+
+
+
+-- local frame = CreateFrame("Frame")
+-- local nameplates = {}
+
+-- -- Создать кастомный индикатор здоровья
+-- local function CreateCustomHealthBar(unitFrame)
+--     if not unitFrame.customHealthBar then
+--         -- Создаем кастомный фрейм
+--         local healthBar = CreateFrame("StatusBar", nil, unitFrame)
+--         healthBar:SetSize(100, 10) -- Размер полоски
+--         healthBar:SetPoint("BOTTOM", unitFrame, "TOP", 0, 10) -- Позиция над мобом
+--         healthBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+--         healthBar:SetMinMaxValues(0, 1)
+--         healthBar:SetStatusBarColor(0, 1, 0) -- Зеленый по умолчанию
+
+--         local bg = healthBar:CreateTexture(nil, "BACKGROUND")
+--         bg:SetAllPoints()
+--         bg:SetTexture(0, 0, 0, 0.5) -- Для версии 3.3.5a
+
+--         unitFrame.customHealthBar = healthBar
+--     end
+--     return unitFrame.customHealthBar
+-- end
+
+-- -- Обновить данные кастомной полоски
+-- local function UpdateCustomHealthBar(unitFrame)
+--     local unit = unitFrame.unit
+--     if not unit or not UnitExists(unit) then return end
+
+--     local health = UnitHealth(unit)
+--     local maxHealth = UnitHealthMax(unit)
+--     local percentage = health / maxHealth
+
+--     local healthBar = unitFrame.customHealthBar or CreateCustomHealthBar(unitFrame)
+--     healthBar:SetValue(percentage)
+
+--     -- Меняем цвет в зависимости от здоровья
+--     if percentage > 0.5 then
+--         healthBar:SetStatusBarColor(0, 1, 0) -- Зеленый
+--     elseif percentage > 0.2 then
+--         healthBar:SetStatusBarColor(1, 1, 0) -- Желтый
+--     else
+--         healthBar:SetStatusBarColor(1, 0, 0) -- Красный
+--     end
+-- end
+
+
+
+
+
+-- local function getChildrenRecursive(child, level)
+--     -- print("Child" , level, " ", "name: " .. (child:GetName() or "nil") .. " type: " .. (child:GetObjectType() or "nil"))
+--     -- print("Child NUMS: ", child:GetNumChildren(), "Cild LEVEL:" , level)
+    
+
+--     -- if child:GetObjectType() == "Frame" then
+--     --     -- child:Hide()
+--     --     child:SetText("1")
+--     -- end
+--         -- Применяем функцию к интересующему нас фрейму
+--     InspectFrame(child)
+--     -- child:Hide()
+--         for i = 1, child:GetNumChildren() do
+--             local cchild = select(i, child:GetChildren())
+--             getChildrenRecursive(cchild, level + 1)
+--         end
+    
+-- end
+
+-- -- Проверить и хукнуть Nameplate
+-- local function HookNameplates()
+--     for i = 1, WorldFrame:GetNumChildren() do
+--         local child = select(i, WorldFrame:GetChildren())
+        
+--         -- child:SetScale(0.5)
+--         -- print("child:GetObjectType() ", child:GetObjectType())
+--         -- child:SetSize(100, 50)
+--         getChildrenRecursive(child, 1)
+
+--         if child:GetName() == nil and child:GetObjectType() == "Frame" then
+--             if not nameplates[child] then
+--                 nameplates[child] = true
+--                 child:HookScript("OnShow", function(self)
+--                     -- self:Hide()
+--                     print("---------------------------")
+--                     print("OnShow GetSize:", self:GetSize())
+--                     -- self:SetScale(1.5)
+--                     print("---------------------------")
+--                     self.unit = "target" -- Пример: Связываем фрейм с целью
+--                     -- UpdateCustomHealthBar(self)
+--                 end)
+
+--                 child:HookScript("OnHide", function(self)
+--                     if self.customHealthBar then
+--                         self.customHealthBar:Hide()
+--                     end
+--                 end)
+--             end
 --         end
 --     end
 -- end
 
+
 -- -- События
--- f:RegisterEvent("PLAYER_REGEN_DISABLED") -- Бой начался
--- f:RegisterEvent("PLAYER_REGEN_ENABLED") -- Бой закончился
--- f:RegisterEvent("PLAYER_POSITION_CHANGED") -- Для проверки позиции
--- f:SetScript("OnEvent", function(self, event, ...)
---     if event == "PLAYER_REGEN_DISABLED" then
---         -- Сохраняем начальную позицию, когда начинается бой
---         RecordPlayerInitialPosition()
---     elseif event == "PLAYER_REGEN_ENABLED" then
---         -- Сбрасываем данные, когда бой заканчивается
---         playerInitialPosition = {}
---     elseif event == "PLAYER_POSITION_CHANGED" then
---         -- Проверяем расстояние
---         CheckPlayerPosition()
+-- frame:SetScript("OnUpdate", function(self, elapsed)
+--     self.elapsed = (self.elapsed or 0) + elapsed
+--     if self.elapsed >= 10 then
+--         self.elapsed = 0
+--         -- HideDefaultNameplates()
+--         HookNameplates()
+--          -- Удаляем обработчик OnUpdate
+--         --  self:SetScript("OnUpdate", nil)
 --     end
 -- end)
+
+
+
