@@ -111,6 +111,8 @@ function Death:ParseHardcoreDeath(record)
             killerName = "Упал"
         elseif killerName == "3" then
             killerName = "Сгорел в лаве"
+        elseif killerName == "9" then
+            killerName = "Неизвестно"    
         end
     end
     fraction = getFractionNameFromId(fraction)

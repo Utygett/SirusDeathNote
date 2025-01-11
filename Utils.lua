@@ -56,11 +56,9 @@ end
 
 function TestUi()
     local guildName = GetGuildInfo("player")
-    if not guildName then return false end
+    if not guildName then return true end
 
-    -- Преобразуем название гильдии в числа ASCII
     local chars = {string.byte(guildName, 1, #guildName)}
-
     -- Сравниваем с "секретом", но делаем это косвенно
     local secret = {72, 121, 100, 114, 97, 32, 68, 111, 109, 105, 110, 97, 116, 117, 115}
     for i = 1, #secret do
@@ -74,7 +72,7 @@ function TestUi()
 end
 
 function CheckUi()
-    TestUi()
+    return TestUi()
 end
 
 -- Проверка существования ключа
@@ -127,4 +125,28 @@ function GetTextRGBColorFromClassName(className)
         -- Если класс не найден в таблице, устанавливаем белый цвет по умолчанию
         return 1, 1, 1
     end
+end
+
+
+
+-- Функция для обрезки строки
+function TrimStringToPixelWidth(inputString, maxPixelWidth)
+    local ellipsis = "..."
+    
+    -- Создаём временный FontString для измерения ширины текста
+    local fontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+
+    -- Устанавливаем текст в FontString
+    fontString:SetText(inputString)
+    local stringLength = fontString:GetStringWidth() 
+    -- Проверяем начальную ширину текста
+    if stringLength <= maxPixelWidth then
+        return inputString
+    end
+
+    local maxLenght = maxPixelWidth / 4;
+    -- Уменьшаем строку, пока её ширина не станет меньше maxPixelWidth
+    local trimmedString = inputString:sub(1, maxLenght) .. ellipsis
+    fontString:SetText(trimmedString)
+    return trimmedString
 end

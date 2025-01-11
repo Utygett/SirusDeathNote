@@ -1,5 +1,3 @@
-print("---------------------Файл WidgetUtils загружен.")
-
 function CreteMainFrameUi(frameName, width, height, frameStrate, title)
     local frame = CreateFrame("Frame", frameName, UIParent, "BasicFrameTemplateWithInset")
     frame:SetSize(width, height)
