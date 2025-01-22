@@ -1,7 +1,8 @@
-# SirusDeathNote
+# SaveHardcoreDeaths
 Addon for wow sirus hardcore
 На данный момент проходит закрытое бета тестирование аддона, поэтому работать будет не у всех.
 Ссылка на архив последней версии https://github.com/Utygett/SaveHardcoreDeaths/archive/refs/heads/SaveHardcoreDeaths.zip
+После скачивания и разархивирвоания переименовать папку в SaveHardcoreDeaths.
 ![image](https://github.com/user-attachments/assets/d7e0ecb0-5abd-441e-bf0a-f8b382332df5)
 
 # Планы на развитие 
