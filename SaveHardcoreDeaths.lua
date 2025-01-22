@@ -39,9 +39,9 @@ end
 local parsedDeathList = {}
 -- Загрузка данных
 local function LoadSavedEvents()
-        if CheckUi() then
-            return
-        end
+        -- if CheckUi() then
+        --     return
+        -- end
         for key, record in pairs(DeathListSaved) do
             local parsedDeath = Death:ParseHardcoreDeath(record)
             if parsedDeath.name == nil then
@@ -475,92 +475,92 @@ end
 
 
 
--- -- Определение аддона
--- local addonName, addonTable = ...
--- local XPTracker = CreateFrame("Frame", "XPTrackerFrame", UIParent)
+-- Определение аддона
+local addonName, addonTable = ...
+local XPTracker = CreateFrame("Frame", "XPTrackerFrame", UIParent)
 
--- -- Переменные для отслеживания
--- local sessionXP = 0
--- local sessionKills = 0
--- local sessionStartTime = time()
--- local lastXP = UnitXP("player")
+-- Переменные для отслеживания
+local sessionXP = 0
+local sessionKills = 0
+local sessionStartTime = time()
+local lastXP = UnitXP("player")
 
--- -- Создание фрейма для отображения информации
--- XPTracker:SetWidth(200)
--- XPTracker:SetHeight(130)
--- XPTracker:SetPoint("CENTER", UIParent, "CENTER")
--- XPTracker:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",})
--- XPTracker:SetBackdropColor(0, 0, 0, 0.8)
--- XPTracker:EnableMouse(true)
--- XPTracker:SetMovable(true)
--- XPTracker:RegisterForDrag("LeftButton")
--- XPTracker:SetScript("OnDragStart", XPTracker.StartMoving)
--- XPTracker:SetScript("OnDragStop", XPTracker.StopMovingOrSizing)
+-- Создание фрейма для отображения информации
+XPTracker:SetWidth(200)
+XPTracker:SetHeight(130)
+XPTracker:SetPoint("CENTER", UIParent, "CENTER")
+XPTracker:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",})
+XPTracker:SetBackdropColor(0, 0, 0, 0.8)
+XPTracker:EnableMouse(true)
+XPTracker:SetMovable(true)
+XPTracker:RegisterForDrag("LeftButton")
+XPTracker:SetScript("OnDragStart", XPTracker.StartMoving)
+XPTracker:SetScript("OnDragStop", XPTracker.StopMovingOrSizing)
 
--- -- Текстовые элементы
--- local text = XPTracker:CreateFontString(nil, "OVERLAY", "GameFontNormal")
--- text:SetPoint("TOPLEFT", 10, -10)
--- text:SetJustifyH("LEFT")
--- text:SetText("Загрузка...")
+-- Текстовые элементы
+local text = XPTracker:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+text:SetPoint("TOPLEFT", 10, -10)
+text:SetJustifyH("LEFT")
+text:SetText("Загрузка...")
 
--- -- Функция для обновления текста
--- local function UpdateText()
---     local currentXP = UnitXP("player")
---     local maxXP = UnitXPMax("player")
---     local gainedXP = currentXP - lastXP
---     if gainedXP > 0 then
---         sessionXP = sessionXP + gainedXP
---         lastXP = currentXP
---     end
+-- Функция для обновления текста
+local function UpdateText()
+    local currentXP = UnitXP("player")
+    local maxXP = UnitXPMax("player")
+    local gainedXP = currentXP - lastXP
+    if gainedXP > 0 then
+        sessionXP = sessionXP + gainedXP
+        lastXP = currentXP
+    end
 
---     local elapsedTime = time() - sessionStartTime
---     local xpPerHour = sessionXP / (elapsedTime / 3600)
---     local remainingXP = maxXP - currentXP
---     local timeToLevel = remainingXP / (xpPerHour / 3600)
---     local minutes = math.floor(elapsedTime / 60)
---     local seconds = elapsedTime % 60
+    local elapsedTime = time() - sessionStartTime
+    local xpPerHour = sessionXP / (elapsedTime / 3600)
+    local remainingXP = maxXP - currentXP
+    local timeToLevel = remainingXP / (xpPerHour / 3600)
+    local minutes = math.floor(elapsedTime / 60)
+    local seconds = elapsedTime % 60
 
---     text:SetText(string.format(
---         "Сессия:\nВремя сессии: %d мин %d сек\nПолучено опыта: %.0f\nОпыт в час: %.0f\nДо уровня: %.1f мин\nУбито мобов: %d",
---         minutes, seconds, sessionXP, xpPerHour, timeToLevel / 60, sessionKills
---     ))
--- end
+    text:SetText(string.format(
+        "Сессия:\nВремя сессии: %d мин %d сек\nПолучено опыта: %.0f\nОпыт в час: %.0f\nДо уровня: %.1f мин\nУбито мобов: %d",
+        minutes, seconds, sessionXP, xpPerHour, timeToLevel / 60, sessionKills
+    ))
+end
 
--- -- Сброс данных сессии
--- local function ResetSession()
---     sessionXP = 0
---     sessionKills = 0
---     sessionStartTime = time()
---     lastXP = UnitXP("player")
---     UpdateText()
--- end
+-- Сброс данных сессии
+local function ResetSession()
+    sessionXP = 0
+    sessionKills = 0
+    sessionStartTime = time()
+    lastXP = UnitXP("player")
+    UpdateText()
+end
 
--- -- Кнопка сброса
--- local resetButton = CreateFrame("Button", nil, XPTracker, "UIPanelButtonTemplate")
--- resetButton:SetSize(80, 20)
--- resetButton:SetPoint("BOTTOM", XPTracker, "BOTTOM", 0, 10)
--- resetButton:SetText("Сброс")
--- resetButton:SetScript("OnClick", ResetSession)
+-- Кнопка сброса
+local resetButton = CreateFrame("Button", nil, XPTracker, "UIPanelButtonTemplate")
+resetButton:SetSize(80, 20)
+resetButton:SetPoint("BOTTOM", XPTracker, "BOTTOM", 0, 10)
+resetButton:SetText("Сброс")
+resetButton:SetScript("OnClick", ResetSession)
 
--- -- Обработчик событий
--- XPTracker:RegisterEvent("PLAYER_XP_UPDATE")
--- XPTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
--- XPTracker:SetScript("OnEvent", function(self, event, ...)
---     if event == "PLAYER_XP_UPDATE" then
---         UpdateText()
---     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
---         arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
---         -- print("COMBAT_LOG_EVENT_UNFILTERED", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
---         -- local _, subEvent, _, sourceGUID, _, _, _, destGUID, _, _, _, spellID = CombatLogGetCurrentEventInfo()
---         if arg2 == "UNIT_DIED" then --and sourceGUID == UnitGUID("player") then
---             sessionKills = sessionKills + 1
---             UpdateText()
---         end
---     end
--- end)
+-- Обработчик событий
+XPTracker:RegisterEvent("PLAYER_XP_UPDATE")
+XPTracker:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+XPTracker:SetScript("OnEvent", function(self, event, ...)
+    if event == "PLAYER_XP_UPDATE" then
+        UpdateText()
+    elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
+        arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
+        -- print("COMBAT_LOG_EVENT_UNFILTERED", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+        -- local _, subEvent, _, sourceGUID, _, _, _, destGUID, _, _, _, spellID = CombatLogGetCurrentEventInfo()
+        if arg2 == "UNIT_DIED" then --and sourceGUID == UnitGUID("player") then
+            sessionKills = sessionKills + 1
+            UpdateText()
+        end
+    end
+end)
 
--- -- Инициализация
--- UpdateText()
+-- Инициализация
+UpdateText()
 
 
 
