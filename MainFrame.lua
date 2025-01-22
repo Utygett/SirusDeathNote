@@ -42,7 +42,7 @@ end
 -- Конструктор класса
 function UiMainFramne:new(parsedDeathList)
     local obj = setmetatable({}, UiMainFramne)
-    obj.frame = CreteMainFrameUi("MainFrame", 970, 450, "MEDIUM", "Тетрадь смерти")
+    obj.frame = CreteMainFrameUi("MainFrame", 1030, 450, "MEDIUM", "Тетрадь смерти")
     obj.data = parsedDeathList
     obj.parsedDeathList = parsedDeathList
 
@@ -51,7 +51,7 @@ function UiMainFramne:new(parsedDeathList)
     -- Заголовки таблицы
     -- name, class, fraction, race, level, zone, unknowValue, killerName, killerLevel, deathTime)
     obj.headers =     {"Имя", "Класс","Раса", "lvl", "Локация", "Кто убил", "lvl уб..", "Время смерти"}
-    obj.headersSize = {85,       95  ,  75,     30,     130,        320,         50,              120}
+    obj.headersSize = {85,       110  ,  110,     30,     130,        340,         50,              120}
     obj.sortColumn = nil
     obj.sortAscending = true
     obj.headerFrames = {}
@@ -60,11 +60,11 @@ function UiMainFramne:new(parsedDeathList)
 
         -- Создание ScrollFrame для прокрутки
     obj.scrollFrame = CreateFrame("ScrollFrame", nil, obj.frame, "UIPanelScrollFrameTemplate")
-    obj.scrollFrame:SetSize(920, 350)
+    obj.scrollFrame:SetSize(980, 350)
     obj.scrollFrame:SetPoint("TOPLEFT", obj.frame, "TOPLEFT", 10, -80)
 
     obj.scrollChild = CreateFrame("Frame") -- Контейнер для содержимого
-    obj.scrollChild:SetSize(980, 1) -- Ширина фиксированная, высота будет изменяться
+    obj.scrollChild:SetSize(1030, 1) -- Ширина фиксированная, высота будет изменяться
     obj.scrollFrame:SetScrollChild(obj.scrollChild)
 
     -- Создание выпадающего меню
@@ -233,22 +233,22 @@ function UiMainFramne:UpdateTable()
             self.scrollChild.rows[i].class:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 100, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].race = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].race:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 180, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].race:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 200, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].level = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].level:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 260, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].level:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 310, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].zone = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].zone:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 290, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].zone:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 345, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].killerName = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].killerName:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 450, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].killerName:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 500, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].killerLevel = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].killerLevel:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 750, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].killerLevel:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 815, -rowHeight * (i - 1))
 
             self.scrollChild.rows[i].deathTime = self.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-            self.scrollChild.rows[i].deathTime:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 780, -rowHeight * (i - 1))
+            self.scrollChild.rows[i].deathTime:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 850, -rowHeight * (i - 1))
         end
 
         self.scrollChild.rows[i].name:SetText(row.name)
@@ -258,16 +258,16 @@ function UiMainFramne:UpdateTable()
         self.scrollChild.rows[i].class:SetTextColor(GetTextRGBColorFromClassName(row.class))
         self.scrollChild.rows[i].class:Show()    
 
-        self.scrollChild.rows[i].race:SetText(row.race)
+        self.scrollChild.rows[i].race:SetText(TrimStringToPixelWidth(row.race, 100))
         self.scrollChild.rows[i].race:Show()
 
         self.scrollChild.rows[i].level:SetText(row.level)
         self.scrollChild.rows[i].level:Show()
 
-        self.scrollChild.rows[i].zone:SetText(row.zone)
+        self.scrollChild.rows[i].zone:SetText(TrimStringToPixelWidth(row.zone, 150))
         self.scrollChild.rows[i].zone:Show()
 
-        self.scrollChild.rows[i].killerName:SetText(row.killerName)
+        self.scrollChild.rows[i].killerName:SetText(TrimStringToPixelWidth(row.killerName, 300))
         self.scrollChild.rows[i].killerName:Show()
 
         self.scrollChild.rows[i].killerLevel:SetText(row.killerLevel)
