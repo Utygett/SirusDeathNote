@@ -1,6 +1,5 @@
 -- Функция для создания виджета выбора даты и времени
-function CreateDateTimePicker(parentFrame, title, initialDateTime, onConfirm)
-    -- local frame = CreateFrame("Frame", nil, parentFrame) -- Убираем BackdropTemplate
+function CreateDateTimePicker(title, initialDateTime, onConfirm)
     local frame = CreteMainFrameUi("DateTimePicker", 300, 200, "DIALOG", title)
     -- Сохраняем дату и время начало синхронизации в настройки
     UserSettings.dateTimeForSynch = initialDateTime
@@ -76,30 +75,3 @@ function CreateDateTimePicker(parentFrame, title, initialDateTime, onConfirm)
 
     return frame, dateInput, timeInput
 end
-
--- -- Пример использования:
--- local mainFrame = CreateFrame("Frame", nil, UIParent,"BasicFrameTemplateWithInset")
-
--- mainFrame:SetSize(400, 300)
--- mainFrame:SetPoint("CENTER")
--- mainFrame:SetBackdrop({
---     bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
---     edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
---     tile = true, tileSize = 32, edgeSize = 32,
---     insets = { left = 11, right = 12, top = 12, bottom = 11 }
--- })
--- mainFrame:EnableMouse(true)
-
--- local picker = CreateDateTimePicker(mainFrame, "Выберите дату и время", "2024-12-10 00:56:03", function(selectedDateTime)
---     print("Выбранная дата и время: " .. selectedDateTime)
--- end)
--- picker:Hide()
-
--- -- Кнопка для открытия виджета
--- local openPickerButton = CreateFrame("Button", nil, mainFrame, "UIPanelButtonTemplate")
--- openPickerButton:SetSize(120, 40)
--- openPickerButton:SetPoint("CENTER")
--- openPickerButton:SetText("Установить дату")
--- openPickerButton:SetScript("OnClick", function()
---     picker:Show()
--- end)

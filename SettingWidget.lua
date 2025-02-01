@@ -64,7 +64,7 @@ function SettingsWidget:new()
 
     obj.dateInput = nil
     obj.timeInput = nil
-    obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker(obj.frame, "Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
+    obj.picker, obj.dateInput, obj.timeInput = CreateDateTimePicker("Выберите дату и время", date("%Y-%m-%d %H:%M:%S"), function(selectedDateTime)
         -- Сохраняем дату и время начало синхронизации в настройки
         UserSettings.dateTimeForSynch = selectedDateTime;
         obj.UpdateSyncDateLabel(obj, selectedDateTime)
